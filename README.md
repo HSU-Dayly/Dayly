@@ -17,3 +17,6 @@ For help getting started with Flutter development, view the
 [online documentation](https://docs.flutter.dev/), which offers tutorials,
 samples, guidance on mobile development, and a full API reference.
 >>>>>>> 74e503d (chore: 파이어베이스 연결&프로젝트 초기 설정)
+=======
+# Dayly
+>>>>>>> b33863733526cfead6d03417f73b8477d29ca0f1
