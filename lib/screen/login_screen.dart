@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 import 'main_screens.dart';
+import '../nickname.dart';
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -30,7 +31,7 @@ class LoginScreen extends StatelessWidget {
       // 로그인 성공 시 메인 화면으로 이동
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => MainScreens()),
+        MaterialPageRoute(builder: (context) => UsernameScreen()),
       );
     } catch (e) {
       print('구글 로그인 오류: $e');
@@ -51,7 +52,7 @@ class LoginScreen extends StatelessWidget {
 
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => MainScreens()),
+        MaterialPageRoute(builder: (context) => UsernameScreen()),
       );
 
       // 추가로 Firebase Custom Token을 사용하려면 서버에서 Kakao Access Token을 Firebase Custom Token으로 변환하는 과정이 필요합니다.

@@ -34,6 +34,7 @@ dependencies:
   firebase_auth: ^5.3.2
   google_sign_in: ^6.2.2
   kakao_flutter_sdk: ^1.8.0
+  cloud_firestore: ^5.4.5
   
   flutter_localization: ^0.2.2
 
@@ -42,7 +43,7 @@ dependencies:
   cupertino_icons: ^1.0.8
   flutter_localizations:
     sdk: flutter
-
+  table_calendar:
 
 dev_dependencies:
   flutter_test:
