@@ -1,4 +1,7 @@
+import 'package:dayly/daily_words_screen.dart';
+import 'package:dayly/screen/calendar/calendar.dart';
 import 'package:dayly/screen/profile/profile_screen.dart';
+import 'package:dayly/screen/words/word_list.dart';
 import 'package:flutter/material.dart';
 
 class MainScreens extends StatefulWidget {
@@ -15,9 +18,9 @@ class _MainScreensState extends State<MainScreens> {
       body: IndexedStack(
         index: _selectedIndex,
         children: [
-          ProfileScreen(),
-          ProfileScreen(),
-          ProfileScreen(),
+          CalendarScreen(),
+          VocabularyScreen(),
+          DailyWordsScreen(),
           ProfileScreen(),
         ],
       ),
