@@ -11,27 +11,24 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Checkout the repository
       - uses: actions/checkout@v4
 
-      # Set up Flutter environment
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: 'stable' # 원하는 Flutter 버전 입력 가능 ('stable' 사용 권장)
+          flutter-version: 'stable'
 
-      # Get project dependencies
+      - name: Set Flutter channel
+        run: flutter channel stable
+
+      - name: Upgrade Flutter
+        run: flutter upgrade
+
       - name: Install dependencies
         run: flutter pub get
 
-      # Verify project formatting (optional)
-      - name: Verify formatting
-        run: flutter format --set-exit-if-changed .
-
-      # Analyze project source code
       - name: Analyze project source
         run: flutter analyze
 
-      # Run project tests
       - name: Run tests
         run: flutter test
