@@ -1,26 +1,6 @@
+import 'package:dayly/screen/main_screens.dart';
 import 'package:flutter/material.dart';
 import './screen/calendar/calendar.dart';
-
-void main() {
-  runApp(MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      home: UsernameScreen(),
-      theme: ThemeData(
-        fontFamily: 'HakgyoansimBadasseugiOTFL',
-        primaryColor: const Color.fromRGBO(88, 71, 51, 0.992),
-        iconTheme: const IconThemeData(
-          color: Color.fromRGBO(88, 71, 51, 0.992),
-        ), // 기본 폰트 전체 적용
-      ),
-      debugShowCheckedModeBanner: false,
-    );
-  }
-}
 
 class UsernameScreen extends StatefulWidget {
   @override
@@ -90,7 +70,7 @@ class _UsernameScreenState extends State<UsernameScreen> {
                 Navigator.of(context).pop();
                 print("이름 입력 완료: ${_controller.text}");
                 Navigator.of(context).pushReplacement(
-                  MaterialPageRoute(builder: (context) => CalendarScreen()),
+                  MaterialPageRoute(builder: (context) => MainScreens()),
                 );
               },
               child: const Text(
