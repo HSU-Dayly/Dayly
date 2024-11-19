@@ -21,9 +21,6 @@ jobs:
       - name: Set Flutter channel
         run: flutter channel stable
 
-      - name: Upgrade Flutter
-        run: flutter upgrade
-
       - name: Install dependencies
         run: flutter pub get
 
