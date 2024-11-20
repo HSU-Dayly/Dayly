@@ -1,4 +1,4 @@
-import 'package:dayly/daily_words_screen.dart';
+import 'package:dayly/screen/daily_words/daily_words_screen.dart';
 import 'package:dayly/screen/calendar/calendar.dart';
 import 'package:dayly/screen/profile/profile_screen.dart';
 import 'package:dayly/screen/words/word_list.dart';
