@@ -5,6 +5,7 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 import 'diary_list.dart';
 import '../words/word_list.dart';
+import '../diary/DiarySwipeScreen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized(); // 비동기 초기화
@@ -13,6 +14,8 @@ void main() async {
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -40,6 +43,8 @@ class MyApp extends StatelessWidget {
 }
 
 class CalendarScreen extends StatefulWidget {
+  const CalendarScreen({super.key});
+
   @override
   _CalendarScreenState createState() => _CalendarScreenState();
 }
@@ -307,10 +312,11 @@ class _CalendarScreenState extends State<CalendarScreen> {
                           label: '이동',
                           onPressed: () {
                             // 일기 작성 화면으로 이동
-                            // Navigator.push(
-                            //   context,
-                            //   MaterialPageRoute(builder: (context) => NewDiaryScreen()),
-                            // );
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => DiarySwipeScreen()),
+                            );
                           },
                         ),
                       ),
