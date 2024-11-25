@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart'; // URL 열기 위한 패키지
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import '../../global.dart';
+import 'analysis_diary_result.dart';
 
 // DiaryEntryModel: 일기 모델
 class DiaryEntryModel extends ChangeNotifier {
@@ -190,9 +194,12 @@ class _DiaryEntryScreenState extends State<DiaryEntryScreen>
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              '오늘의 일기를 작성하세요',
-              style: TextStyle(fontSize: 20),
+            Text(
+              '오늘의 일기를 한글로 작성해보세요',
+              style: TextStyle(
+                fontSize: 20,
+                backgroundColor: Color(0xFFFFEA00).withOpacity(0.34),
+              ),
             ),
             const SizedBox(height: 10),
             Container(
@@ -257,11 +264,11 @@ class OtherScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Write your diary in English',
+            Text(
+              '오늘의 일기를 영어로 작성해보세요',
               style: TextStyle(
                 fontSize: 20,
-                color: Colors.black,
+                backgroundColor: Color(0xFFFFEA00).withOpacity(0.34),
               ),
             ),
 
@@ -368,7 +375,13 @@ class OtherScreen2 extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // 텍스트만 표시
+          Text(
+            'AI 분석을 통해 첨삭을 받아 보세요 ',
+            style: TextStyle(
+              fontSize: 20,
+              backgroundColor: Color(0xFFFFEA00).withOpacity(0.34),
+            ),
+          ),
           Text(
             diaryModel.secondEntry.isNotEmpty
                 ? diaryModel.secondEntry // 저장된 내용을 출력
@@ -381,15 +394,162 @@ class OtherScreen2 extends StatelessWidget {
             child: ElevatedButton(
               onPressed: () {
                 // 버튼 클릭 시 동작
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Button Pressed!')),
-                );
+                _getAnalyzeFromGpt(context, diaryModel.secondEntry);
               },
               child: const Text('Press Me'),
             ),
           ),
         ],
       ),
+    );
+  }
+
+  Future<void> _getAnalyzeFromGpt(BuildContext context, String text) async {
+    final apiUrl = 'https://api.openai.com/v1/chat/completions';
+
+    if (text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('분석할 내용을 입력하세요!')),
+      );
+      return;
+    }
+
+    _showLoadingDialog(context);
+
+    final messages = [
+      {
+        "role": "system",
+        "content": """
+    당신은 사용자의 영어 문장을 교정하고, 문장 단위로 분석하며, 해석을 제공하는 도우미입니다.
+
+    - 사용자의 입력을 문장 단위로 구분하세요.
+    - 각 문장에 대해:
+      1. 틀린 부분만 찾아 해당 단어나 구문을 <red></red> 태그로 감싸서 분석 내용을 제공하세요.
+      2. 아쉬운 표현만 찾아서 해당 단어나 구문을 <yellow></yellow> 태그로 감싸서 분석 내용을 제공하세요.
+      3. 올바르게 수정된 부분은 <blue></blue> 태그로 감싸주세요.
+      4. 더 나은 표현으로 고친 경우에는 <green></green> 태그로 감싸세요.
+      5. 전체 문장이 틀렸더라도, 개별 단어나 구문 수준에서 태그로 감싸주세요.
+      6. 절대로 전체 문장을 한꺼번에 태그로 감싸지 마세요.
+    - JSON 형식으로만 응답하세요. 그 외의 설명이나 텍스트는 포함하지 마세요.
+
+    응답 형식:
+    {
+      "sentences": [
+        {
+          "translation": "한국어 해석",
+          "analysis": "분석된 문장 (태그 포함)",
+          "corrected": "수정된 문장"
+        },
+        ...
+      ]
+    }
+
+    예시:
+    사용자 입력: "I am go to school. She is more smarter than me."
+    응답:
+    {
+      "sentences": [
+        {
+          "translation": "나는 학교에 가고 있다.",
+          "analysis": "I <red>am go</red> to school.",
+          "corrected": "I <blue>am going</blue> to school."
+        },
+        {
+          "translation": "그녀는 나보다 더 똑똑하다.",
+          "analysis": "She is <red>more smarter</red> than me.",
+          "corrected": "She is <green>smarter</green> than me."
+        }
+      ]
+    }
+
+    중요: 반드시 올바른 JSON 형식으로만 응답해야 하며, 틀린 부분만 태그로 감싸주세요.
+  """
+      },
+      {"role": "user", "content": text},
+    ];
+
+    try {
+      final response = await http.post(
+        Uri.parse(apiUrl),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $openapiKey',
+        },
+        body: jsonEncode({
+          'model': 'gpt-4',
+          'messages': messages,
+          'max_tokens': 1000,
+          'temperature': 0.0,
+        }),
+      );
+
+      Navigator.pop(context); // 로딩 다이얼로그 닫기
+      print('Raw Response: ${response.body}');
+      if (response.statusCode == 200) {
+        // `response.bodyBytes`를 UTF-8로 디코딩
+        final responseBody =
+            utf8.decode(response.bodyBytes); // 바이너리 데이터를 UTF-8로 디코딩
+        print('Decoded Response Body: $responseBody'); // 디코딩 후 결과 확인
+
+        final data = jsonDecode(responseBody); // 디코딩된 본문을 JSON으로 파싱
+
+        // `content`는 이미 JSON 형식이므로, 바로 파싱
+        final String analysisContent = data['choices'][0]['message']['content'];
+        print('Analysis: $analysisContent'); // 분석 내용 출력
+
+        // 분석된 내용은 이미 JSON 형식으로 되어 있으므로 바로 파싱
+        final parsedData = jsonDecode(analysisContent);
+
+        // 분석된 문장이 있는지 확인
+        final sentences = parsedData['sentences'] ?? [];
+
+        // 문장이 있다면 화면으로 전달
+        if (sentences.isNotEmpty) {
+          print("문제없이 전달됨");
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => AnalysisResultScreen(
+                analyzedSentences: (sentences as List<dynamic>)
+                    .map((e) => Map<String, String>.from(e as Map)) // 데이터를 변환
+                    .toList(),
+              ),
+            ),
+          );
+        } else {
+          throw Exception('분석된 문장이 없습니다.');
+        }
+      } else {
+        throw Exception('텍스트 분석에 실패했습니다.');
+      }
+    } catch (e) {
+      Navigator.pop(context); // 로딩 다이얼로그 닫기
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('분석 중 오류가 발생했습니다: ${e.toString()}')),
+      );
+    }
+  }
+
+  void _showLoadingDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return Stack(
+          children: [
+            Opacity(
+              opacity: 0.4,
+              child: ModalBarrier(
+                dismissible: false,
+                color: Color(0xFF040404),
+              ),
+            ),
+            Center(
+              child: CircularProgressIndicator(),
+            ),
+          ],
+        );
+      },
     );
   }
 }
