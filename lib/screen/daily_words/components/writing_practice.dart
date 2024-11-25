@@ -287,12 +287,12 @@ class WritingPracticeScreen extends StatelessWidget {
                             ElevatedButton(
                               onPressed: () async {
                                 final query = _searchController.text;
-                                final url =
-                                    'https://en.dict.naver.com/#/search?query=${Uri.encodeComponent(query)}';
-                                if (await canLaunch(url)) {
-                                  await launch(url);
+                                final uri =
+                                    Uri.parse('https://en.dict.naver.com/#/search?query=${Uri.encodeComponent(query)}');
+                                if (await canLaunchUrl(uri)) {
+                                  await launchUrl(uri);
                                 } else {
-                                  throw 'Could not launch $url';
+                                  throw 'Could not launch $uri';
                                 }
                               },
                               style: ElevatedButton.styleFrom(
