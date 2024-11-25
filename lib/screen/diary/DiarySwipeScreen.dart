@@ -26,6 +26,7 @@ class DiaryEntryModel extends ChangeNotifier {
 
   void resetEntry() {
     _entry = ''; // 상태 초기화
+    _secondEntry = ''; // 두 번째 텍스트박스 내용 초기화
     notifyListeners(); // 초기화된 상태를 구독자에게 알림
   }
 }
@@ -62,72 +63,80 @@ class _DiarySwipeScreenState extends State<DiarySwipeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFEEEEEE),
-      appBar: AppBar(
-        title: const Text('Dayly'), // 타이틀
-        backgroundColor: const Color(0xFFEEEEEE),
-        leading: IconButton(
-          // 뒤로 가기
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.pop(context); // 뒤로 가기 클릭시
-          },
-        ),
-      ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start, // 왼쪽 정렬
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(16.0), // 간격 추가
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start, // 내부 텍스트 왼쪽 정렬
-              children: [
-                Text(
-                  _formatDateToEnglish(widget.selectedDate), // 날짜 출력
-                  style: const TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                  ),
+    return GestureDetector(
+        onTap: () {
+          // 화면 탭 시 키보드 닫기
+          FocusScope.of(context).unfocus();
+        },
+        child: Scaffold(
+          backgroundColor: const Color(0xFFEEEEEE),
+          appBar: AppBar(
+            title: const Text('Dayly'), // 타이틀
+            backgroundColor: const Color(0xFFEEEEEE),
+            leading: IconButton(
+              // 뒤로 가기
+              icon: const Icon(Icons.arrow_back),
+              onPressed: () {
+                Navigator.pop(context); // 뒤로 가기 클릭시
+              },
+            ),
+          ),
+          body: Column(
+            crossAxisAlignment: CrossAxisAlignment.start, // 왼쪽 정렬
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(16.0), // 간격 추가
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start, // 내부 텍스트 왼쪽 정렬
+                  children: [
+                    Text(
+                      _formatDateToEnglish(widget.selectedDate), // 날짜 출력
+                      style: const TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+              Expanded(
+                child: PageView(
+                  controller:
+                      _pageController, // PageController 클래스를 등록하여 페이지 전환
+                  onPageChanged: _onPageChanged, // 페이지가 변경될 때 호출되는 콜백 함수
+                  children: const [
+                    DiaryEntryScreen(), // 첫번째 페이지
+                    OtherScreen(), // 두번째 페이지
+                    OtherScreen2(), // 세번째 페이지
+                  ],
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center, // 수평축의 중앙에 정렬
+                  children: List<Widget>.generate(3, (index) {
+                    return AnimatedContainer(
+                      duration:
+                          const Duration(milliseconds: 300), // 애니메이션 지속 시간
+                      margin: const EdgeInsets.symmetric(
+                          horizontal: 4.0), // 좌우에 마진 추가
+                      height: 8.0,
+                      width:
+                          _currentPage == index ? 24.0 : 8.0, // 현재 페이지면 가로로 길게
+                      decoration: BoxDecoration(
+                        color: _currentPage == index // 현재 페이지를 표시
+                            ? const Color.fromARGB(255, 55, 55, 55)
+                            : Colors.grey,
+                        borderRadius: BorderRadius.circular(8.0), // 모서리 둥글게
+                      ),
+                    );
+                  }),
+                ),
+              ),
+            ],
           ),
-          Expanded(
-            child: PageView(
-              controller: _pageController, // PageController 클래스를 등록하여 페이지 전환
-              onPageChanged: _onPageChanged, // 페이지가 변경될 때 호출되는 콜백 함수
-              children: const [
-                DiaryEntryScreen(), // 첫번째 페이지
-                OtherScreen(), // 두번째 페이지
-                OtherScreen2(), // 세번째 페이지
-              ],
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center, // 수평축의 중앙에 정렬
-              children: List<Widget>.generate(3, (index) {
-                return AnimatedContainer(
-                  duration: const Duration(milliseconds: 300), // 애니메이션 지속 시간
-                  margin:
-                      const EdgeInsets.symmetric(horizontal: 4.0), // 좌우에 마진 추가
-                  height: 8.0,
-                  width: _currentPage == index ? 24.0 : 8.0, // 현재 페이지면 가로로 길게
-                  decoration: BoxDecoration(
-                    color: _currentPage == index // 현재 페이지를 표시
-                        ? const Color.fromARGB(255, 55, 55, 55)
-                        : Colors.grey,
-                    borderRadius: BorderRadius.circular(8.0), // 모서리 둥글게
-                  ),
-                );
-              }),
-            ),
-          ),
-        ],
-      ),
-    );
+        ));
   }
 
 // 날짜를 영어로 포맷하는 함수
