@@ -236,9 +236,20 @@ class _DiaryEntryScreenState extends State<DiaryEntryScreen>
 class OtherScreen extends StatelessWidget {
   const OtherScreen({super.key});
 
+  // 단어 검색 함수
+  void _searchWord(String word) async {
+    final url = Uri.parse('https://dict.naver.com/search.nhn?query=$word');
+    if (await canLaunchUrl(url)) {
+      await launchUrl(url);
+    } else {
+      throw 'Could not launch $url';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final diaryModel = Provider.of<DiaryEntryModel>(context);
+    final TextEditingController searchController = TextEditingController();
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -311,7 +322,7 @@ class OtherScreen extends StatelessWidget {
               children: [
                 Expanded(
                   child: TextField(
-                    controller: TextEditingController(),
+                    controller: searchController,
                     decoration: InputDecoration(
                       hintText: 'Enter a word to search',
                       contentPadding:
@@ -327,6 +338,10 @@ class OtherScreen extends StatelessWidget {
                 ElevatedButton(
                   onPressed: () {
                     // 버튼 동작
+                    final word = searchController.text;
+                    if (word.isNotEmpty) {
+                      _searchWord(word);
+                    }
                   },
                   child: const Text('Search'),
                 ),
