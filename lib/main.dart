@@ -32,6 +32,11 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         fontFamily: 'HakgyoansimBadasseugiOTFL',
         scaffoldBackgroundColor: Color(0xFFEEEEEE),
+        textTheme: TextTheme(
+          bodyLarge: TextStyle(color: Color(0XFF776767)),
+          bodyMedium: TextStyle(color: Color(0XFF776767)),
+          headlineLarge: TextStyle(color: Color(0XFF776767)),
+        ),
       ),
       locale: const Locale('ko'), // 한국어로 기본 설정
       supportedLocales: const [
