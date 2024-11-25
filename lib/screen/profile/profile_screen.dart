@@ -11,6 +11,9 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
+  int totalDays = 30;
+  int totalDiary = 45;
+  int diaryInARow = 7;
 
   void _showAlarmDialog() {
     showDialog(
@@ -69,9 +72,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ],
             ),
             SizedBox(height: 8),
-            Text('✨ 30일째 함께 하고 있어요', style: TextStyle(fontSize: 24, )),
-            Text('📝 지금까지 45개의 일기를 썼어요', style: TextStyle(fontSize: 24, )),
-            Text('🔥 연속 작성 기록 7일', style: TextStyle(fontSize: 24, )),
+            Text('✨ $totalDays일째 함께 하고 있어요', style: TextStyle(fontSize: 20, )),
+            Text('📝 지금까지 $totalDiary개의 일기를 썼어요', style: TextStyle(fontSize: 20, )),
+            Text('🔥 연속 작성 기록 $diaryInARow일', style: TextStyle(fontSize: 20, )),
             SizedBox(height: 24),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -123,7 +126,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
               ],
             ),
-            SizedBox(height: 16),
+            SizedBox(height: 8),
             Center(
               child: Container(
                 width: double.infinity,
