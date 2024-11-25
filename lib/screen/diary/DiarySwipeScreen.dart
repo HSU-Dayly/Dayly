@@ -339,13 +339,20 @@ class OtherScreen extends StatelessWidget {
                 Expanded(
                   child: TextField(
                     controller: searchController,
+                    maxLines: 1,
                     decoration: InputDecoration(
-                      hintText: 'Enter a word to search',
-                      contentPadding:
-                          const EdgeInsets.symmetric(horizontal: 16.0),
+                      hintText: '단어를 검색해보세요',
+                      hintStyle: TextStyle(
+                        fontSize: 15,
+                        color: Color(0xFFACACAC),
+                      ),
+                      filled: true,
+                      fillColor: Color(0xFFF6F6F6),
+                      // contentPadding:
+                      // const EdgeInsets.symmetric(horizontal: 16.0),
                       border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16.0),
-                        borderSide: const BorderSide(color: Colors.grey),
+                        borderRadius: BorderRadius.circular(15.0),
+                        borderSide: BorderSide.none,
                       ),
                     ),
                   ),
@@ -359,7 +366,17 @@ class OtherScreen extends StatelessWidget {
                       _searchWord(word);
                     }
                   },
-                  child: const Text('Search'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Color(0xFF776767),
+                    minimumSize: Size(50, 50),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15.0),
+                    ),
+                  ),
+                  child: Icon(
+                    Icons.search,
+                    color: Colors.white,
+                  ),
                 ),
               ],
             ),
