@@ -216,7 +216,7 @@ class _DailyWordsScreenState extends State<DailyWordsScreen> {
                     );
                   },
                   style: ButtonStyle(
-                    side: MaterialStateProperty.all(BorderSide(color: Color(0xFF776767))),
+                    side: WidgetStateProperty.all(BorderSide(color: Color(0xFF776767))),
                   ),
                   child: Text(
                     '영작 연습',
