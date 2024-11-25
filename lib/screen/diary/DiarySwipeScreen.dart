@@ -47,10 +47,10 @@ class _DiarySwipeScreenState extends State<DiarySwipeScreen> {
   int _currentPage = 0;
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    // 상태 초기화는 Future.delayed를 통해 지연시키기
-    Future.delayed(Duration.zero, () {
+  void initState() {
+    super.initState();
+    // 상태 초기화를 페이지가 처음 로드될 때만 수행
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<DiaryEntryModel>(context, listen: false).resetEntry();
     });
   }
