@@ -39,17 +39,17 @@ dependencies:
   google_sign_in: ^6.2.2
   kakao_flutter_sdk: ^1.8.0
   cloud_firestore: ^5.4.5
-  firebase_database: ^10.0.5
-  http: ^0.14.0
+  # firebase_database: ^10.0.5
   
   flutter_localization: ^0.2.2
+  http: ^1.2.2
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
   flutter_localizations:
     sdk: flutter
-  table_calendar:
+  table_calendar: ^3.1.2
 
 dev_dependencies:
   flutter_test:
