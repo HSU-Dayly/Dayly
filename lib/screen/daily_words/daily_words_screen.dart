@@ -3,8 +3,6 @@ import 'dart:ui';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-
-import './components/writing_practice.dart';
 import 'components/writing_practice.dart';
 
 class DailyWordsScreen extends StatefulWidget {
