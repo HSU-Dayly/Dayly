@@ -53,7 +53,7 @@ class _DailyWordsScreenState extends State<DailyWordsScreen> {
   Future<List<String>> getTodaysExpressions() async {
     final firestore = FirebaseFirestore.instance;
 
-    // Firestore에서 문장 데이터를 가져옵니다
+    // Firestore에서 문장 데이터를 가져오니다
     final snapshot = await firestore
         .collection('expressions')
         .orderBy('date') // 날짜 기준으로 정렬
@@ -119,22 +119,31 @@ class _DailyWordsScreenState extends State<DailyWordsScreen> {
                           builder: (context) => WritingPracticeScreen()),
                     );
                   },
-                  child: Text('영작 연습'),
+                  style: ButtonStyle(
+                    side: MaterialStateProperty.all(BorderSide(color: Color(0xFF776767))),
+                  ),
+                  child: Text(
+                    '영작 연습',
+                    style: TextStyle(
+                        color: Color(0xFF776767),
+                        fontSize: 15
+                    ),
+                  ),
                 ),
               ],
             ),
             expressions.isEmpty
                 ? Center(child: CircularProgressIndicator()) // 로딩 중
                 : Expanded(
-                    child: ListView.builder(
-                      itemCount: expressions.length,
-                      itemBuilder: (context, index) {
-                        return ListTile(
-                          title: Text(expressions[index]),
-                        );
-                      },
-                    ),
-                  ),
+              child: ListView.builder(
+                itemCount: expressions.length,
+                itemBuilder: (context, index) {
+                  return ListTile(
+                    title: Text(expressions[index]),
+                  );
+                },
+              ),
+            ),
           ],
         ),
       ),

@@ -9,15 +9,19 @@ import 'analysis_result.dart';
 class WritingPracticeScreen extends StatelessWidget {
   final TextEditingController _searchController = TextEditingController();
   final TextEditingController _writeEngController = TextEditingController();
+  final String randomEng = "go with the flow";
 
   Future<void> _getAnalyzeFromGpt(BuildContext context) async {
     final apiUrl = 'https://api.openai.com/v1/chat/completions';
     final text = _writeEngController.text;
 
     if (text.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('영작을 입력하세요!')),
-      );
+      _showAlertDialog(context, '', '영작을 입력하세요!');
+      return;
+    }
+
+    if (!text.contains(randomEng)) {
+      _showAlertDialog(context, '', '"$randomEng"를 포함해\n 작성해주세요!');
       return;
     }
 
@@ -101,12 +105,58 @@ class WritingPracticeScreen extends StatelessWidget {
           ),
         );
       } else {
-        throw Exception('Failed to analyze text');
+        _showAlertDialog(context, '', '분석 중 오류가 발생했습니다.\n 다시 시도해주세요.');
       }
+    } on http.ClientException catch (_) {
+      Navigator.pop(context); // 로딩 다이얼로그 닫기
+      _showAlertDialog(context, '', '분석에 실패했습니다.\n 네트워크 환경을 확인해주세요.');
     } catch (e) {
       Navigator.pop(context); // 로딩 다이얼로그 닫기
-      print('분석 중 오류가 발생했습니다: $e');
+      print('분석 중\n 오류가 발생했습니다: $e');
     }
+  }
+
+  void _showAlertDialog(BuildContext context, String title, String message) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(
+            title,
+          ),
+          content: Text(
+            message,
+            style: TextStyle(
+              fontSize: 20.0,
+            ),
+            textAlign: TextAlign.center, // 메시지 가운데 정렬
+          ),
+          actionsAlignment: MainAxisAlignment.center, // 버튼 중앙 정렬
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // 다이얼로그 닫기
+              },
+              style: TextButton.styleFrom(
+                backgroundColor: Colors.white,
+                minimumSize: Size(80, 40),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15.0),
+                ),
+              ),
+              child: Text(
+                '확인',
+                style: TextStyle(
+                  color: Color(0xFF776767),
+                  fontSize: 20.0
+                ),
+              ),
+            ),
+          ],
+          backgroundColor: Color(0xFFF6F6F6),
+        );
+      },
+    );
   }
 
   void _showLoadingDialog(BuildContext context) {
@@ -137,126 +187,157 @@ class WritingPracticeScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          '영작 연습',
+          'Dayly',
           style: TextStyle(
             fontSize: 24.0,
             fontWeight: FontWeight.bold,
+            color: Color(0xFF776767),
           ),
+        ),
+        iconTheme: IconThemeData(
+          color: Color(0xFF776767)
         ),
         backgroundColor: const Color(0xFFEEEEEE),
         elevation: 0,
         centerTitle: true,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text.rich(
-              TextSpan(
-                children: [
-                  TextSpan(
-                    text: 'go with the flow',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      backgroundColor: Color(0xFFFFEA00).withOpacity(0.34),
+      body: GestureDetector(
+        onTap: () {
+          FocusScope.of(context).unfocus(); // 화면 터치 시 키보드 닫기
+        },
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            return SingleChildScrollView(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  minHeight: constraints.maxHeight,
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 70.0, horizontal: 20.0),
+                  child: IntrinsicHeight(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text.rich(
+                          TextSpan(
+                            children: [
+                              TextSpan(
+                                text: randomEng,
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                  backgroundColor: Color(0xFFFFEA00).withOpacity(0.34),
+                                ),
+                              ),
+                              TextSpan(
+                                text: '을 사용해 문장을 작성해 보세요.',
+                                style: TextStyle(
+                                  fontSize: 22,
+                                  fontWeight: FontWeight.w500,
+                                  color: Color(0xFF776767),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        SizedBox(height: 40),
+                        TextField(
+                          controller: _writeEngController,
+                          maxLines: 5,
+                          style: TextStyle(
+                            fontSize: 20.0,
+                          ),
+                          decoration: InputDecoration(
+                            hintText: '여기에 영작을 입력하세요...',
+                            hintStyle: TextStyle(
+                              fontSize: 18,
+                              color: Color(0xFFACACAC),
+                            ),
+                            filled: true,
+                            fillColor: Color(0xFFF6F6F6),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(15.0),
+                              borderSide: BorderSide.none,
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: 20.0),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: TextField(
+                                controller: _searchController,
+                                maxLines: 1,
+                                decoration: InputDecoration(
+                                  hintText: '단어를 검색해보세요',
+                                  hintStyle: TextStyle(
+                                    fontSize: 15,
+                                    color: Color(0xFFACACAC),
+                                  ),
+                                  filled: true,
+                                  fillColor: Color(0xFFF6F6F6),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(15.0),
+                                    borderSide: BorderSide.none,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            SizedBox(width: 10),
+                            ElevatedButton(
+                              onPressed: () async {
+                                final query = _searchController.text;
+                                final url =
+                                    'https://en.dict.naver.com/#/search?query=${Uri.encodeComponent(query)}';
+                                if (await canLaunch(url)) {
+                                  await launch(url);
+                                } else {
+                                  throw 'Could not launch $url';
+                                }
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Color(0xFF776767),
+                                minimumSize: Size(50, 50),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(15.0),
+                                ),
+                              ),
+                              child: Icon(
+                                Icons.search,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: 70),
+                        Center(
+                          child: ElevatedButton(
+                            onPressed: () {
+                              _getAnalyzeFromGpt(context);
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.white,
+                              minimumSize: Size(100, 50),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(15.0),
+                              ),
+                            ),
+                            child: Text(
+                              '제출',
+                              style: TextStyle(
+                                fontSize: 24,
+                                color: Color(0xFF776767),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  TextSpan(
-                    text: '을 사용해 문장을 작성해 보세요.',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.black,
-                    ),
-                  ),
-                ],
+                ),
               ),
-            ),
-            SizedBox(height: 20),
-            TextField(
-              controller: _writeEngController,
-              maxLines: 5,
-              decoration: InputDecoration(
-                hintText: '여기에 영작을 입력하세요...',
-                hintStyle: TextStyle(
-                  fontSize: 18,
-                  color: Color(0xFFACACAC),
-                ),
-                filled: true,
-                fillColor: Color(0xFFF6F6F6),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(15.0),
-                  borderSide: BorderSide.none,
-                ),
-              ),
-            ),
-            SizedBox(height: 20.0),
-            Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _searchController,
-                    maxLines: 1,
-                    decoration: InputDecoration(
-                      hintText: '단어를 검색해보세요',
-                      hintStyle: TextStyle(
-                        fontSize: 15,
-                        color: Color(0xFFACACAC),
-                      ),
-                      filled: true,
-                      fillColor: Color(0xFFF6F6F6),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(15.0),
-                        borderSide: BorderSide.none,
-                      ),
-                    ),
-                  ),
-                ),
-                SizedBox(width: 10),
-                ElevatedButton(
-                  onPressed: () async {
-                    final query = _searchController.text;
-                    final url = 'https://en.dict.naver.com/#/search?query=${Uri.encodeComponent(query)}';
-                    if (await canLaunch(url)) {
-                      await launch(url);
-                    } else {
-                      throw 'Could not launch $url';
-                    }
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xFF776767),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(15.0),
-                    ),
-                  ),
-                  child: Icon(
-                    Icons.search,
-                    color: Colors.white,
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(height: 20),
-            Center(
-              child: ElevatedButton(
-                onPressed: () {
-                  _getAnalyzeFromGpt(context);
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.white,
-                ),
-                child: Text(
-                  '제출',
-                  style: TextStyle(
-                    fontSize: 18,
-                    color: Color(0xFF776767),
-                  ),
-                ),
-              ),
-            ),
-          ],
+            );
+          },
         ),
       ),
     );
