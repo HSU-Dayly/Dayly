@@ -5,7 +5,6 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 
 import 'components/dialogs.dart';
-import '../../global.dart';
 
 class ProfileScreen extends StatefulWidget {
   @override
