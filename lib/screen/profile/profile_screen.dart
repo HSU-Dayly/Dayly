@@ -26,8 +26,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   // Firebase에서 닉네임 가져오기
   void _fetchUsername() async {
     try {
-      DatabaseReference ref =
-          FirebaseDatabase.instance.ref('users/USER_NAME'); // Firebase 경로
+      DatabaseReference ref = FirebaseDatabase.instance.ref('users/USER_NAME'); // Firebase 경로
       DataSnapshot snapshot = await ref.get();
       if (snapshot.exists) {
         setState(() {
