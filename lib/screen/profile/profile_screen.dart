@@ -1,9 +1,11 @@
 import 'dart:ui';
 
 import 'package:dayly/global.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 
 import 'components/dialogs.dart';
+import '../../global.dart';
 
 class ProfileScreen extends StatefulWidget {
   @override
@@ -14,6 +16,35 @@ class _ProfileScreenState extends State<ProfileScreen> {
   int totalDays = 30;
   int totalDiary = 45;
   int diaryInARow = 7;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchUsername(); // 닉네임 불러오기
+  }
+
+  // Firebase에서 닉네임 가져오기
+  void _fetchUsername() async {
+    try {
+      DatabaseReference ref =
+          FirebaseDatabase.instance.ref('users/USER_NAME'); // Firebase 경로
+      DataSnapshot snapshot = await ref.get();
+      if (snapshot.exists) {
+        setState(() {
+          USER_NAME = snapshot.child('username').value.toString();
+        });
+      } else {
+        setState(() {
+          USER_NAME = '사용자'; // 닉네임 없을 경우 기본값
+        });
+      }
+    } catch (e) {
+      print('닉네임 불러오기 실패: $e');
+      setState(() {
+        USER_NAME = '사용자'; // 오류 시 기본값
+      });
+    }
+  }
 
   void _showAlarmDialog() {
     showDialog(
@@ -64,24 +95,40 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   '$USER_NAME',
                   style: TextStyle(fontSize: 35, fontWeight: FontWeight.bold),
                 ),
-                SizedBox(width: 10,),
+                SizedBox(
+                  width: 10,
+                ),
                 Text(
                   '님',
-                  style: TextStyle(fontSize: 24, ),
+                  style: TextStyle(
+                    fontSize: 24,
+                  ),
                 )
               ],
             ),
             SizedBox(height: 8),
-            Text('✨ $totalDays일째 함께 하고 있어요', style: TextStyle(fontSize: 20, )),
-            Text('📝 지금까지 $totalDiary개의 일기를 썼어요', style: TextStyle(fontSize: 20, )),
-            Text('🔥 연속 작성 기록 $diaryInARow일', style: TextStyle(fontSize: 20, )),
+            Text('✨ $totalDays일째 함께 하고 있어요',
+                style: TextStyle(
+                  fontSize: 20,
+                )),
+            Text('📝 지금까지 $totalDiary개의 일기를 썼어요',
+                style: TextStyle(
+                  fontSize: 20,
+                )),
+            Text('🔥 연속 작성 기록 $diaryInARow일',
+                style: TextStyle(
+                  fontSize: 20,
+                )),
             SizedBox(height: 24),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
                   'Dayly 알림',
-                  style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold,),
+                  style: TextStyle(
+                    fontSize: 26,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 GestureDetector(
                   onTap: () {
@@ -104,7 +151,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
               child: Text(
                 '매일 17 : 00',
-                style: TextStyle(fontSize: 20, ),
+                style: TextStyle(
+                  fontSize: 20,
+                ),
               ),
             ),
             SizedBox(height: 24),
@@ -113,7 +162,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
               children: [
                 Text(
                   '이번 달 목표',
-                  style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold, ),
+                  style: TextStyle(
+                    fontSize: 26,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 GestureDetector(
                   onTap: () {
@@ -137,7 +189,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
                 child: Column(
                   children: [
-                    SizedBox(height: 20,),
+                    SizedBox(
+                      height: 20,
+                    ),
                     Stack(
                       alignment: Alignment.center,
                       children: [
@@ -157,12 +211,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             Text(
                               '목표 달성',
                               textAlign: TextAlign.center,
-                              style: TextStyle(fontSize: 20, ),
+                              style: TextStyle(
+                                fontSize: 20,
+                              ),
                             ),
                             Text(
                               '20%',
                               textAlign: TextAlign.center,
-                              style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold, color: Color(0xFFEFD454)),
+                              style: TextStyle(
+                                  fontSize: 40,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xFFEFD454)),
                             ),
                           ],
                         ),
@@ -174,8 +233,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       children: [
                         Column(
                           children: [
-                            Text('목표 일기', style: TextStyle(fontSize: 20,)),
-                            Text('20', style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold)),
+                            Text('목표 일기',
+                                style: TextStyle(
+                                  fontSize: 20,
+                                )),
+                            Text('20',
+                                style: TextStyle(
+                                    fontSize: 30, fontWeight: FontWeight.bold)),
                           ],
                         ),
                         Container(
@@ -185,8 +249,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                         Column(
                           children: [
-                            Text('작성한 일기', style: TextStyle(fontSize: 20, )),
-                            Text('7', style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold, color: Color(0xFFEFD454))),
+                            Text('작성한 일기',
+                                style: TextStyle(
+                                  fontSize: 20,
+                                )),
+                            Text('7',
+                                style: TextStyle(
+                                    fontSize: 30,
+                                    fontWeight: FontWeight.bold,
+                                    color: Color(0xFFEFD454))),
                           ],
                         ),
                         Container(
@@ -196,8 +267,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                         Column(
                           children: [
-                            Text('작성할 일기', style: TextStyle(fontSize: 20, )),
-                            Text('13', style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold, color: Colors.red)),
+                            Text('작성할 일기',
+                                style: TextStyle(
+                                  fontSize: 20,
+                                )),
+                            Text('13',
+                                style: TextStyle(
+                                    fontSize: 30,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.red)),
                           ],
                         ),
                       ],
