@@ -1,6 +1,6 @@
 import 'package:dayly/screen/main_screens.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
-import './screen/calendar/calendar.dart';
 
 class UsernameScreen extends StatefulWidget {
   @override
@@ -23,23 +23,20 @@ class _UsernameScreenState extends State<UsernameScreen> {
     });
   }
 
-  // void _showWarningDialog() {
-  //   showDialog(
-  //     context: context,
-  //     builder: (context) {
-  //       return AlertDialog(
-  //         title: Text('경고'),
-  //         content: Text('이름을 입력해 주세요.'),
-  //         actions: [
-  //           TextButton(
-  //             onPressed: () => Navigator.of(context).pop(),
-  //             child: Text('확인'),
-  //           ),
-  //         ],
-  //       );
-  //     },
-  //   );
-  // }
+  // Firebase에 별명 저장
+  void _saveUsernameToFirebase(String username) async {
+    try {
+      DatabaseReference ref =
+          FirebaseDatabase.instance.ref('users/USER_NAME'); // Firebase 경로 설정
+      await ref.set({
+        'username': username,
+        'timestamp': DateTime.now().toIso8601String(),
+      });
+      print("별명 저장 성공: $username");
+    } catch (e) {
+      print("별명 저장 실패: $e");
+    }
+  }
 
   // 이름 입력 후 확인 클릭 시 나타나는 재확인 다이얼로그
   void _showConfirmationDialog() {
@@ -50,7 +47,7 @@ class _UsernameScreenState extends State<UsernameScreen> {
           title: Text('${_controller.text}님'),
           content: const Text(
             '위 이름으로 계속 진행하시겠습니까?',
-            style: const TextStyle(
+            style: TextStyle(
               color: Color.fromRGBO(88, 71, 51, 0.992), // 텍스트 색상 명확히 지정
             ),
           ),
@@ -67,8 +64,9 @@ class _UsernameScreenState extends State<UsernameScreen> {
             TextButton(
               onPressed: () {
                 // 확인 버튼 눌렀을 때의 동작
+                String username = _controller.text;
+                _saveUsernameToFirebase(username); // Firebase에 별명 저장
                 Navigator.of(context).pop();
-                print("이름 입력 완료: ${_controller.text}");
                 Navigator.of(context).pushReplacement(
                   MaterialPageRoute(builder: (context) => MainScreens()),
                 );
@@ -115,7 +113,6 @@ class _UsernameScreenState extends State<UsernameScreen> {
               ),
               const SizedBox(height: 20),
               TextField(
-                // style: const TextStyle(fontFamily: "Kyobo"),
                 controller: _controller,
                 autofocus: true, // 커서를 바로 텍스트 필드로
                 style: const TextStyle(

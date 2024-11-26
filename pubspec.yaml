@@ -39,7 +39,7 @@ dependencies:
   google_sign_in: ^6.2.2
   kakao_flutter_sdk: ^1.8.0
   cloud_firestore: ^5.4.5
-  # firebase_database: ^10.0.5
+  firebase_database: ^11.1.6
   
   flutter_localization: ^0.2.2
   http: ^1.2.2
