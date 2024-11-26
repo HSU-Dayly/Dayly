@@ -28,10 +28,10 @@ Dayly는 그냥 영어 학습 도구가 아니라, 일상적인 자기 성찰을
 <br>
 
 ## 🧑‍🤝‍🧑 맴버구성
- - 팀원1 : [하여린](https://github.com/niroey) - 웹 서버 구현 및 데이터베이스 구축
- - 팀원2 : [전아린](https://github.com/flsrinn) - Electron 프레임워크를 활용한 터치 스크린 구현
- - 팀원3 : [김은비](https://github.com/ssilverrain) - RaspberryPi를 이용한 AI 소프트웨어 개발 및 테스팅
- - 팀원4 : [정세연](https://github.com/mvg01) - RaspberryPi를 이용한 AI 소프트웨어 개발 및 테스팅
+ - 팀원1 : [하여린](https://github.com/niroey) - 소셜로그인 페이지 및 파이어베이스 구축
+ - 팀원2 : [전아린](https://github.com/flsrinn) - 마이페이지 구현
+ - 팀원3 : [김은비](https://github.com/ssilverrain) - 일기작성 페이지 구현
+ - 팀원4 : [정세연](https://github.com/sseyeonn) - 메인 페이지 구현
 <br>
 
  ## ⚙️ 개발 환경
