@@ -9,7 +9,9 @@ import 'analysis_result.dart';
 class WritingPracticeScreen extends StatelessWidget {
   final TextEditingController _searchController = TextEditingController();
   final TextEditingController _writeEngController = TextEditingController();
-  final String randomEng = "go with the flow";
+  final String randomEng;
+
+  WritingPracticeScreen(this.randomEng);
 
   Future<void> _getAnalyzeFromGpt(BuildContext context) async {
     final apiUrl = 'https://api.openai.com/v1/chat/completions';
