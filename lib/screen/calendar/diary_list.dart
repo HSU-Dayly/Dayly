@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'calender.dart';
+import './calendar.dart';
 import '../words/word_list.dart';
 import 'package:intl/intl.dart';
 import 'diary_entry.dart';
