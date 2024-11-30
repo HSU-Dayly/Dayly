@@ -1,6 +1,7 @@
 import 'package:dayly/screen/main_screens.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class UsernameScreen extends StatefulWidget {
   @override
@@ -38,6 +39,11 @@ class _UsernameScreenState extends State<UsernameScreen> {
     }
   }
 
+  Future<void> _saveUserNameToCache(String userName) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('userName', userName); // 사용자 이름 저장
+  }
+
   // 이름 입력 후 확인 클릭 시 나타나는 재확인 다이얼로그
   void _showConfirmationDialog() {
     showDialog(
@@ -66,6 +72,7 @@ class _UsernameScreenState extends State<UsernameScreen> {
                 // 확인 버튼 눌렀을 때의 동작
                 String username = _controller.text;
                 _saveUsernameToFirebase(username); // Firebase에 별명 저장
+                _saveUserNameToCache(username);
                 Navigator.of(context).pop();
                 Navigator.of(context).pushReplacement(
                   MaterialPageRoute(builder: (context) => MainScreens()),
