@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:dayly/global.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../local_notifications.dart';
 import 'components/dialogs.dart';
@@ -26,25 +27,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   // Firebase에서 닉네임 가져오기
   void _fetchUsername() async {
-    try {
-      DatabaseReference ref =
-      FirebaseDatabase.instance.ref('users/USER_NAME'); // Firebase 경로
-      DataSnapshot snapshot = await ref.get();
-      if (snapshot.exists) {
-        setState(() {
-          USER_NAME = snapshot.child('username').value.toString();
-        });
-      } else {
-        setState(() {
-          USER_NAME = '사용자'; // 닉네임 없을 경우 기본값
-        });
-      }
-    } catch (e) {
-      print('닉네임 불러오기 실패: $e');
-      setState(() {
-        USER_NAME = '사용자'; // 오류 시 기본값
-      });
-    }
+    final prefs = await SharedPreferences.getInstance();
+    USER_NAME = prefs.getString('userName')!;
   }
 
   void _showAlarmDialog() async {
