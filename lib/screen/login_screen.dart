@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'main_screens.dart';
 import '../nickname.dart';
 
 class LoginScreen extends StatelessWidget {
@@ -26,10 +26,8 @@ class LoginScreen extends StatelessWidget {
       );
 
       // Firebase 인증
-      UserCredential userCredential = await FirebaseAuth.instance.signInWithCredential(credential);
+      await FirebaseAuth.instance.signInWithCredential(credential);
       print('구글 로그인 성공');
-
-      await _saveUserToCache(userCredential.user!.uid); // 사용자 ID 저장
       // 로그인 성공 시 메인 화면으로 이동
       Navigator.pushReplacement(
         context,
@@ -50,9 +48,6 @@ class LoginScreen extends StatelessWidget {
         // 카카오 계정으로 로그인
         OAuthToken token = await UserApi.instance.loginWithKakaoAccount();
         print('카카오 계정 로그인 성공: ${token.accessToken}');
-
-        // 사용자가 성공적으로 로그인한 후 캐시에 저장
-        await _saveUserToCache(token.accessToken);
       }
 
       Navigator.pushReplacement(
@@ -64,11 +59,6 @@ class LoginScreen extends StatelessWidget {
     } catch (e) {
       print('카카오 로그인 오류: $e');
     }
-  }
-
-  Future<void> _saveUserToCache(String userId) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('userId', userId); // 사용자 ID 저장
   }
 
   @override

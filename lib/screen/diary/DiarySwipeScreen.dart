@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart'; // URL 열기 위한 패키지
@@ -11,21 +10,9 @@ import 'analysis_diary_result.dart';
 class DiaryEntryModel extends ChangeNotifier {
   String _entry = '';
   String _secondEntry = '';
-  List<Map<String, String>> _analyzedSentences = [];
-  List<String> _analyzedVocabulary = [];
-  bool _isAnalysisComplete = false;
-  DateTime _selectedDate;
-
-  // 생성자에서 selectedDate를 받지 않고, setSelectedDate 메서드를 통해 초기화
-  DiaryEntryModel() : _selectedDate = DateTime.now();
 
   String get entry => _entry;
   String get secondEntry => _secondEntry; // 두 번째 텍스트박스의 내용 가져오기
-  DateTime get selectedDate => _selectedDate; // selectedDate getter 추가
-  // 분석된 문장과 단어를 getter로 가져오기
-  List<Map<String, String>> get analyzedSentences => _analyzedSentences;
-  List<String> get analyzedVocabulary => _analyzedVocabulary;
-  bool get isAnalysisComplete => _isAnalysisComplete;
 
   void updateEntry(String newEntry) {
     _entry = newEntry;
@@ -42,52 +29,14 @@ class DiaryEntryModel extends ChangeNotifier {
     _secondEntry = ''; // 두 번째 텍스트박스 내용 초기화
     notifyListeners(); // 초기화된 상태를 구독자에게 알림
   }
-
-  // 분석된 데이터 전체를 반환하는 getter
-  AnalysisData get analyzedAnalysisData {
-    return AnalysisData(
-      sentences: _analyzedSentences,
-      vocabulary: _analyzedVocabulary,
-    );
-  }
-
-  // 분석된 데이터 설정 함수
-  void setAnalysisResult(AnalysisData analysisData) {
-    _analyzedSentences = analysisData.sentences;
-    _analyzedVocabulary = analysisData.vocabulary;
-    _isAnalysisComplete = true;
-    notifyListeners();
-  }
-
-  // 분석 초기화 함수
-  void resetAnalysis() {
-    _analyzedSentences = [];
-    _analyzedVocabulary = [];
-    _isAnalysisComplete = false;
-    notifyListeners();
-  }
-
-  void updateSelectedDate(DateTime date) {
-    _selectedDate = date;
-    notifyListeners(); // 날짜가 변경되면 notify
-  }
-}
-
-class AnalysisData {
-  final List<Map<String, String>> sentences; // 문장 데이터
-  final List<String> vocabulary; // 단어 데이터
-
-  AnalysisData({
-    required this.sentences,
-    required this.vocabulary,
-  });
 }
 
 // DiarySwipeScreen: 메인 화면
 class DiarySwipeScreen extends StatefulWidget {
-  final DateTime selectedDate;
+  final DateTime selectedDate; // selectedDate를 받는 변수
 
-  const DiarySwipeScreen({super.key, required this.selectedDate});
+  const DiarySwipeScreen(
+      {super.key, required this.selectedDate}); // 생성자에서 selectedDate 받기
 
   @override
   _DiarySwipeScreenState createState() => _DiarySwipeScreenState();
@@ -100,10 +49,9 @@ class _DiarySwipeScreenState extends State<DiarySwipeScreen> {
   @override
   void initState() {
     super.initState();
-    // Provider로 selectedDate 설정
+    // 상태 초기화를 페이지가 처음 로드될 때만 수행
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      Provider.of<DiaryEntryModel>(context, listen: false)
-          .updateSelectedDate(widget.selectedDate);
+      Provider.of<DiaryEntryModel>(context, listen: false).resetEntry();
     });
   }
 
@@ -111,191 +59,136 @@ class _DiarySwipeScreenState extends State<DiarySwipeScreen> {
     setState(() {
       _currentPage = page;
     });
-    FocusScope.of(context).unfocus();
-  }
-
-  Future<bool> _showExitDialog() async {
-    // 모달창을 띄우는 함수
-    return (await showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              // title: const Text('뒤로 가기'),
-              content: Text.rich(
-                TextSpan(
-                  children: [
-                    const TextSpan(
-                      text: '작성한 내용이 모두 ',
-                      style: TextStyle(
-                          color: Colors.black,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 17),
-                    ),
-                    TextSpan(
-                      text: '삭제',
-                      style: TextStyle(
-                          color: Colors.red,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 18),
-                      // '삭제'에 빨간색 적용
-                    ),
-                    const TextSpan(
-                      text: '됩니다. \n정말로 일기 작성을 취소할까요?',
-                      style: TextStyle(
-                          color: Colors.black,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 17),
-                    ),
-                  ],
-                ),
-              ),
-              actions: <Widget>[
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop(false); // 취소
-                  },
-                  child: const Text(
-                    '취소',
-                    style: TextStyle(fontSize: 18, color: Colors.black),
-                  ),
-                ),
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop(true); // 확인
-                  },
-                  child: const Text(
-                    '확인',
-                    style: TextStyle(fontSize: 18, color: Colors.black),
-                  ),
-                ),
-              ],
-
-              contentPadding: const EdgeInsets.all(20.0), // content의 padding 조정
-              actionsPadding: const EdgeInsets.all(10.0), // actions의 padding 조정
-            );
-          },
-        )) ??
-        false;
   }
 
   @override
   Widget build(BuildContext context) {
-    final diaryModel = Provider.of<DiaryEntryModel>(context); // diaryModel을 가져옴
-    final isAnalysisComplete = diaryModel.isAnalysisComplete;
-    final analyzedSentences = diaryModel.analyzedSentences; // 분석된 데이터
-
     return GestureDetector(
         onTap: () {
           // 화면 탭 시 키보드 닫기
           FocusScope.of(context).unfocus();
         },
-        child: WillPopScope(
-            onWillPop: () async {
-              if (_currentPage == 0) {
-                return true; // 첫 번째 페이지에서는 뒤로 가기 허용
-              }
-              _pageController.jumpToPage(0); // 첫 번째 페이지로 이동
-              return false; // 뒤로 가기 동작을 막음
-            },
-            child: Scaffold(
-              backgroundColor: const Color(0xFFEEEEEE),
-              appBar: AppBar(
-                title: const Text('Dayly'), // 타이틀
-                backgroundColor: const Color(0xFFEEEEEE),
-                leading: IconButton(
-                  // 뒤로 가기
-                  icon: const Icon(Icons.arrow_back),
-                  onPressed: () async {
-                    bool shouldExit = await _showExitDialog();
-                    if (shouldExit) {
-                      Navigator.pop(context); // 뒤로 가기 확인 후 뒤로가기
-                      diaryModel.resetEntry();
-                    }
-                  },
+        child: Scaffold(
+          backgroundColor: const Color(0xFFEEEEEE),
+          appBar: AppBar(
+            title: const Text('Dayly'), // 타이틀
+            backgroundColor: const Color(0xFFEEEEEE),
+            leading: IconButton(
+              // 뒤로 가기
+              icon: const Icon(Icons.arrow_back),
+              onPressed: () {
+                Navigator.pop(context); // 뒤로 가기 클릭시
+              },
+            ),
+          ),
+          body: Column(
+            crossAxisAlignment: CrossAxisAlignment.start, // 왼쪽 정렬
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(16.0), // 간격 추가
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start, // 내부 텍스트 왼쪽 정렬
+                  children: [
+                    Text(
+                      _formatDateToEnglish(widget.selectedDate), // 날짜 출력
+                      style: const TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              body: Column(
-                crossAxisAlignment: CrossAxisAlignment.start, // 왼쪽 정렬
-                children: [
-                  // Padding(
-                  //   padding: const EdgeInsets.all(16.0), // 간격 추가
-                  //   child: Column(
-                  //     crossAxisAlignment:
-                  //         CrossAxisAlignment.start, // 내부 텍스트 왼쪽 정렬
-                  //     children: [
-                  //       Text(
-                  //         _formatDateToEnglish(widget.selectedDate), // 날짜 출력
-                  //         style: const TextStyle(
-                  //           fontSize: 22,
-                  //           fontWeight: FontWeight.bold,
-                  //         ),
-                  //       ),
-                  //     ],
-                  //   ),
-                  // ),
-                  // DiarySwipeScreen
-                  Expanded(
-                    child: PageView(
-                      controller: _pageController,
-                      onPageChanged: _onPageChanged,
-                      children: [
-                        DiaryEntryScreen(), // 날짜를 DiaryEntryScreen에 전달
-                        OtherScreen(),
-                        if (diaryModel.secondEntry.isNotEmpty)
-                          OtherScreen2(pageController: _pageController),
-                        if (isAnalysisComplete &&
-                            diaryModel.secondEntry.isNotEmpty)
-                          AnalysisResultScreen(
-                            analysisData:
-                                diaryModel.analyzedAnalysisData, // 객체 전달
-                          ),
-                      ],
-                    ),
-                  ),
-
-                  Padding(
-                    padding: const EdgeInsets.all(20.0),
-                    child: Row(
-                      mainAxisAlignment:
-                          MainAxisAlignment.center, // 수평축의 중앙에 정렬
-                      children: List<Widget>.generate(4, (index) {
-                        return AnimatedContainer(
-                          duration:
-                              const Duration(milliseconds: 300), // 애니메이션 지속 시간
-                          margin: const EdgeInsets.symmetric(
-                              horizontal: 4.0), // 좌우에 마진 추가
-                          height: 8.0,
-                          width: _currentPage == index
-                              ? 24.0
-                              : 8.0, // 현재 페이지면 가로로 길게
-                          decoration: BoxDecoration(
-                            color: _currentPage == index // 현재 페이지를 표시
-                                ? const Color.fromARGB(255, 55, 55, 55)
-                                : Colors.grey,
-                            borderRadius: BorderRadius.circular(8.0), // 모서리 둥글게
-                          ),
-                        );
-                      }),
-                    ),
-                  ),
-                ],
+              Expanded(
+                child: PageView(
+                  controller:
+                      _pageController, // PageController 클래스를 등록하여 페이지 전환
+                  onPageChanged: _onPageChanged, // 페이지가 변경될 때 호출되는 콜백 함수
+                  children: const [
+                    DiaryEntryScreen(), // 첫번째 페이지
+                    OtherScreen(), // 두번째 페이지
+                    OtherScreen2(), // 세번째 페이지
+                  ],
+                ),
               ),
-            )));
+              Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center, // 수평축의 중앙에 정렬
+                  children: List<Widget>.generate(3, (index) {
+                    return AnimatedContainer(
+                      duration:
+                          const Duration(milliseconds: 300), // 애니메이션 지속 시간
+                      margin: const EdgeInsets.symmetric(
+                          horizontal: 4.0), // 좌우에 마진 추가
+                      height: 8.0,
+                      width:
+                          _currentPage == index ? 24.0 : 8.0, // 현재 페이지면 가로로 길게
+                      decoration: BoxDecoration(
+                        color: _currentPage == index // 현재 페이지를 표시
+                            ? const Color.fromARGB(255, 55, 55, 55)
+                            : Colors.grey,
+                        borderRadius: BorderRadius.circular(8.0), // 모서리 둥글게
+                      ),
+                    );
+                  }),
+                ),
+              ),
+            ],
+          ),
+        ));
+  }
+
+// 날짜를 영어로 포맷하는 함수
+// 날짜를 영어로 포맷하는 함수
+  String _formatDateToEnglish(DateTime date) {
+    // 날짜 포맷 지정
+    final months = [
+      "January",
+      "February",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December"
+    ];
+
+    final weekdays = [
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+      "Sunday"
+    ];
+
+    final day = date.day;
+    final month = months[date.month - 1];
+    final year = date.year;
+    final weekday =
+        weekdays[date.weekday - 1]; // DateTime.weekday는 1부터 시작 (Monday)
+
+    // "Weekday, Day Month Year" 형태로 반환
+    return "$weekday, $day $month $year";
   }
 }
 
 // 일기 작성 화면
 class DiaryEntryScreen extends StatefulWidget {
   const DiaryEntryScreen({super.key});
+
   @override
   _DiaryEntryScreenState createState() => _DiaryEntryScreenState();
 }
 
 class _DiaryEntryScreenState extends State<DiaryEntryScreen>
     with AutomaticKeepAliveClientMixin {
-  // 텍스트 필드의 상태를 관리할 컨트롤러 추가
-  final TextEditingController _controller = TextEditingController();
-
   @override
   bool get wantKeepAlive => true;
 
@@ -303,7 +196,6 @@ class _DiaryEntryScreenState extends State<DiaryEntryScreen>
   Widget build(BuildContext context) {
     super.build(context); // 첫 줄로 위치 변경
     final diaryModel = Provider.of<DiaryEntryModel>(context); // 모델 가져오기
-    final selectedDate = Provider.of<DiaryEntryModel>(context).selectedDate;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -311,13 +203,6 @@ class _DiaryEntryScreenState extends State<DiaryEntryScreen>
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              formatDateToKorean(selectedDate), // 날짜 포맷 함수 사용
-              style: const TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
             Text(
               '오늘의 일기를 한글로 작성해보세요',
               style: TextStyle(
@@ -339,12 +224,11 @@ class _DiaryEntryScreenState extends State<DiaryEntryScreen>
                 ],
               ),
               child: TextField(
-                controller: _controller, // 텍스트 필드에 컨트롤러 연결
                 onChanged: (value) {
                   diaryModel.updateEntry(value); // 입력 내용 업데이트
                 },
                 maxLines: 10,
-                maxLength: 500, // 글자 수 제한
+                maxLength: 200, // 글자 수 제한
                 decoration: InputDecoration(
                   hintText: 'ex)앞으로 10년 후, 자신의 모습을 상상해보세요', // (수정) 주제 추천
                   contentPadding: const EdgeInsets.all(16.0),
@@ -364,95 +248,24 @@ class _DiaryEntryScreenState extends State<DiaryEntryScreen>
   }
 }
 
-// 날짜를 한글로 포맷하는 함수
-String formatDateToKorean(DateTime date) {
-  final months = [
-    "1월",
-    "2월",
-    "3월",
-    "4월",
-    "5월",
-    "6월",
-    "7월",
-    "8월",
-    "9월",
-    "10월",
-    "11월",
-    "12월"
-  ];
-
-  final weekdays = ["월요일", "화요일", "수요일", "목요일", "금요일", "토요일", "일요일"];
-
-  final day = date.day;
-  final month = months[date.month - 1];
-  final weekday = weekdays[date.weekday - 1];
-
-  // "요일, 일 월 연도" 형태로 반환
-  return "$month $day일, $weekday";
-}
-
-// 날짜를 영어로 포맷하는 함수
-String formatDateToEnglish(DateTime date) {
-  // 날짜 포맷 지정
-  final months = [
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December"
-  ];
-
-  final weekdays = [
-    "Monday",
-    "Tuesday",
-    "Wednesday",
-    "Thursday",
-    "Friday",
-    "Saturday",
-    "Sunday"
-  ];
-
-  final day = date.day;
-  final month = months[date.month - 1];
-  final weekday =
-      weekdays[date.weekday - 1]; // DateTime.weekday는 1부터 시작 (Monday)
-
-  // "Weekday, Day Month Year" 형태로 반환
-  return "$weekday, $day $month";
-}
-
 // OtherScreen: 영어로 일기 작성
-class OtherScreen extends StatefulWidget {
-  const OtherScreen({super.key}); // 생성자에서 selectedDate 받기
+class OtherScreen extends StatelessWidget {
+  const OtherScreen({super.key});
 
-  @override
-  _OtherScreenState createState() => _OtherScreenState();
-}
-
-class _OtherScreenState extends State<OtherScreen>
-    with AutomaticKeepAliveClientMixin {
-  final TextEditingController searchController = TextEditingController();
-  final TextEditingController diaryController = TextEditingController();
-
-  @override
-  bool get wantKeepAlive => true; // 상태 유지 설정
+  // 단어 검색 함수
+  void _searchWord(String word) async {
+    final url = Uri.parse('https://dict.naver.com/search.nhn?query=$word');
+    if (await canLaunchUrl(url)) {
+      await launchUrl(url);
+    } else {
+      throw 'Could not launch $url';
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    super.build(context); // AutomaticKeepAliveClientMixin의 호출
-
     final diaryModel = Provider.of<DiaryEntryModel>(context);
-    final selectedDate = Provider.of<DiaryEntryModel>(context).selectedDate;
-
-    // 일기 내용이 있다면 controller에 초기화
-    diaryController.text = diaryModel.secondEntry;
+    final TextEditingController searchController = TextEditingController();
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -461,49 +274,35 @@ class _OtherScreenState extends State<OtherScreen>
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              formatDateToEnglish(selectedDate), // 날짜 포맷 함수 사용
-              style: const TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            Text(
               '오늘의 일기를 영어로 작성해보세요',
               style: TextStyle(
                 fontSize: 20,
                 backgroundColor: Color(0xFFFFEA00).withOpacity(0.34),
               ),
             ),
-            // 첫 번째 일기 항목이 있으면 보여줌
-            diaryModel.entry.isNotEmpty
-                ? Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      SizedBox(height: 10.0), // 간격 추가
-                      Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.all(10.0),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(16.0),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.grey.withOpacity(0.3),
-                              blurRadius: 8,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                        child: Text(
-                          diaryModel.entry,
-                          style: const TextStyle(fontSize: 18),
-                        ),
-                      ),
-                    ],
-                  )
-                : const SizedBox.shrink(),
 
-            // 두 번째 일기 항목 작성
+            diaryModel.entry.isNotEmpty
+                ? Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(16.0),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16.0),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey.withOpacity(0.3),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: Text(
+                      diaryModel.entry,
+                      style: const TextStyle(fontSize: 18),
+                    ),
+                  )
+                : const SizedBox.shrink(), // 빈 공간을 차지하지 않도록 함
+            // const SizedBox(height: 16.0), // 간격 추가
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 16.0),
               child: Container(
@@ -519,12 +318,8 @@ class _OtherScreenState extends State<OtherScreen>
                   ],
                 ),
                 child: TextField(
-                  controller: diaryController,
-                  onChanged: (value) {
-                    diaryModel.updateSecondEntry(value); // 일기 내용이 변경되면 모델 업데이트
-                  },
                   maxLines: 10,
-                  maxLength: 500, // 글자 수 제한
+                  onChanged: diaryModel.updateSecondEntry, // 입력값 저장
                   decoration: InputDecoration(
                     hintText: 'Write your diary entry here...',
                     contentPadding: const EdgeInsets.all(16.0),
@@ -538,10 +333,7 @@ class _OtherScreenState extends State<OtherScreen>
                 ),
               ),
             ),
-
             const SizedBox(height: 5.0), // 간격 추가
-
-            // 단어 검색
             Row(
               children: [
                 Expanded(
@@ -556,6 +348,8 @@ class _OtherScreenState extends State<OtherScreen>
                       ),
                       filled: true,
                       fillColor: Color(0xFFF6F6F6),
+                      // contentPadding:
+                      // const EdgeInsets.symmetric(horizontal: 16.0),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(15.0),
                         borderSide: BorderSide.none,
@@ -566,7 +360,7 @@ class _OtherScreenState extends State<OtherScreen>
                 const SizedBox(width: 8.0),
                 ElevatedButton(
                   onPressed: () {
-                    // 버튼 클릭 시 검색어가 비어있지 않으면 검색
+                    // 버튼 동작
                     final word = searchController.text;
                     if (word.isNotEmpty) {
                       _searchWord(word);
@@ -591,32 +385,16 @@ class _OtherScreenState extends State<OtherScreen>
       ),
     );
   }
-
-  // 단어 검색 함수
-  void _searchWord(String word) async {
-    final url = Uri.parse('https://dict.naver.com/search.nhn?query=$word');
-    if (await canLaunchUrl(url)) {
-      await launchUrl(url);
-    } else {
-      throw 'Could not launch $url';
-    }
-  }
 }
 
 // OtherScreen2: 분석 화면
 class OtherScreen2 extends StatelessWidget {
-  final PageController pageController; // PageController 받기
-
-  const OtherScreen2({
-    super.key,
-    required this.pageController,
-  });
+  const OtherScreen2({super.key});
 
   @override
   Widget build(BuildContext context) {
     final diaryModel =
         Provider.of<DiaryEntryModel>(context); // DiaryEntryModel 가져오기
-    final selectedDate = diaryModel.selectedDate; // selectedDate 가져오기
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -624,58 +402,29 @@ class OtherScreen2 extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            formatDateToEnglish(selectedDate), // 날짜 포맷 함수 사용
-            style: const TextStyle(
-              fontSize: 22,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          Text(
             'AI 분석을 통해 첨삭을 받아 보세요 ',
             style: TextStyle(
               fontSize: 20,
               backgroundColor: Color(0xFFFFEA00).withOpacity(0.34),
             ),
           ),
-          // SizedBox(height: 5.0), // 간격 추가
-          Padding(
-            padding: const EdgeInsets.all(12.0), // 패딩 추가
-            child: Text(
-              diaryModel.secondEntry.isNotEmpty
-                  ? diaryModel.secondEntry // 저장된 내용을 출력
-                  : 'No entry yet.', // 내용이 없을 때 표시
-              style: const TextStyle(
-                fontSize: 17, // 글자 크기 키움
-                height: 1.6, // 줄 간격 설정
-              ),
-            ),
+          Text(
+            diaryModel.secondEntry.isNotEmpty
+                ? diaryModel.secondEntry // 저장된 내용을 출력
+                : 'No entry yet.', // 내용이 없을 때 표시
+            style: const TextStyle(fontSize: 16),
           ),
-
           const SizedBox(height: 16.0),
           // 버튼을 중앙 정렬
-          if (diaryModel.secondEntry.isNotEmpty)
-            Center(
-              child: ElevatedButton(
-                onPressed: () {
-                  _getAnalyzeFromGpt(context, diaryModel.secondEntry);
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Color(0xFF776767),
-                  minimumSize: Size(50, 50),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15.0),
-                  ),
-                ),
-                child: const Text(
-                  '분석',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
+          Center(
+            child: ElevatedButton(
+              onPressed: () {
+                // 버튼 클릭 시 동작
+                _getAnalyzeFromGpt(context, diaryModel.secondEntry);
+              },
+              child: const Text('Press Me'),
             ),
+          ),
         ],
       ),
     );
@@ -697,54 +446,50 @@ class OtherScreen2 extends StatelessWidget {
       {
         "role": "system",
         "content": """
-당신은 사용자의 영어 문장을 교정하고, 문장 단위로 분석하며, 해석을 제공하는 도우미입니다.
+    당신은 사용자의 영어 문장을 교정하고, 문장 단위로 분석하며, 해석을 제공하는 도우미입니다.
 
-- 사용자의 입력을 문장 단위로 구분하세요.
-- 각 문장에 대해:
-  1. 틀린 부분만 찾아 해당 단어나 구문을 <red></red> 태그로 감싸서 분석 내용을 제공하세요.
-  2. 아쉬운 표현이나 개선할 부분은 <yellow></yellow> 태그로 감싸주세요.
-  3. 수정된 구문을 따로 제공하며, `sentences` 배열에 각 문장에 대한 해석(`translation`), 분석된 문장(`analysis`), 수정된 문장(`corrected`)을 포함하세요.
-  4. `vocabulary` 배열에는 교정된 부분 중 중요한 원형, 숙어, 또는 단어를 나열해 주세요. 즉, **틀린 부분이나 아쉬운 표현을 수정한 후 그 수정된 표현만 포함**하도록 하세요.
-  5. 절대로 전체 문장을 한꺼번에 태그로 감싸지 마세요.
+    - 사용자의 입력을 문장 단위로 구분하세요.
+    - 각 문장에 대해:
+      1. 틀린 부분만 찾아 해당 단어나 구문을 <red></red> 태그로 감싸서 분석 내용을 제공하세요.
+      2. 아쉬운 표현만 찾아서 해당 단어나 구문을 <yellow></yellow> 태그로 감싸서 분석 내용을 제공하세요.
+      3. 올바르게 수정된 부분은 <blue></blue> 태그로 감싸주세요.
+      4. 더 나은 표현으로 고친 경우에는 <green></green> 태그로 감싸세요.
+      5. 전체 문장이 틀렸더라도, 개별 단어나 구문 수준에서 태그로 감싸주세요.
+      6. 절대로 전체 문장을 한꺼번에 태그로 감싸지 마세요.
+    - JSON 형식으로만 응답하세요. 그 외의 설명이나 텍스트는 포함하지 마세요.
 
-응답 형식:
-{
-  "sentences": [
+    응답 형식:
     {
-      "translation": "한국어 해석",
-      "analysis": "분석된 문장 (태그 포함)",
-      "corrected": "수정된 문장"
-    },
-    ...
-  ],
-  "vocabulary": [
-    "be going to", "more than", "smarter than"
-  ]
-}
-
-예시:
-사용자 입력: "I am go to school. She is more smarter than me."
-응답:
-{
-  "sentences": [
-    {
-      "translation": "나는 학교에 가고 있다.",
-      "analysis": "I <red>am go</red> to school.",
-      "corrected": "I am going to school."
-    },
-    {
-      "translation": "그녀는 나보다 더 똑똑하다.",
-      "analysis": "She is <red>more smarter</red> than me.",
-      "corrected": "She is smarter than me."
+      "sentences": [
+        {
+          "translation": "한국어 해석",
+          "analysis": "분석된 문장 (태그 포함)",
+          "corrected": "수정된 문장"
+        },
+        ...
+      ]
     }
-  ],
-  "vocabulary": [
-    "be going to", "smarter than"
-  ]
-}
 
-중요: 반드시 올바른 JSON 형식으로만 응답해야 하며, 틀린 부분만 태그로 감싸주세요.
-"""
+    예시:
+    사용자 입력: "I am go to school. She is more smarter than me."
+    응답:
+    {
+      "sentences": [
+        {
+          "translation": "나는 학교에 가고 있다.",
+          "analysis": "I <red>am go</red> to school.",
+          "corrected": "I <blue>am going</blue> to school."
+        },
+        {
+          "translation": "그녀는 나보다 더 똑똑하다.",
+          "analysis": "She is <red>more smarter</red> than me.",
+          "corrected": "She is <green>smarter</green> than me."
+        }
+      ]
+    }
+
+    중요: 반드시 올바른 JSON 형식으로만 응답해야 하며, 틀린 부분만 태그로 감싸주세요.
+  """
       },
       {"role": "user", "content": text},
     ];
@@ -781,33 +526,22 @@ class OtherScreen2 extends StatelessWidget {
         // 분석된 내용은 이미 JSON 형식으로 되어 있으므로 바로 파싱
         final parsedData = jsonDecode(analysisContent);
 
-        //// 분석된 문장과 단어가 있는지 확인
+        // 분석된 문장이 있는지 확인
         final sentences = parsedData['sentences'] ?? [];
-        final vocabulary = parsedData['vocabulary'] ?? [];
 
-        // 문장과 단어가 모두 있을 때 화면으로 전달
-        if (sentences.isNotEmpty || vocabulary.isNotEmpty) {
-          // 분석 결과를 Provider를 통해 상태로 저장
-          Provider.of<DiaryEntryModel>(context, listen: false)
-              .setAnalysisResult(
-            AnalysisData(
-              sentences: (sentences as List<dynamic>)
-                  .map((e) => Map<String, String>.from(e as Map)) // 문장 데이터 변환
-                  .toList(),
-              vocabulary: List<String>.from(vocabulary), // 단어 데이터 변환
+        // 문장이 있다면 화면으로 전달
+        if (sentences.isNotEmpty) {
+          print("문제없이 전달됨");
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => AnalysisResultScreen(
+                analyzedSentences: (sentences as List<dynamic>)
+                    .map((e) => Map<String, String>.from(e as Map)) // 데이터를 변환
+                    .toList(),
+              ),
             ),
           );
-
-          // PageController를 사용하여 다음 페이지로 이동
-          Future.delayed(Duration.zero, () {
-            pageController.animateToPage(
-              3, // 결과 화면이 PageView의 네 번째 페이지일때
-              duration: const Duration(milliseconds: 300),
-              curve: Curves.easeInOut,
-            );
-          });
-
-          print("분석 결과가 상태로 저장되고 다음 페이지로 이동했습니다.");
         } else {
           throw Exception('분석된 문장이 없습니다.');
         }

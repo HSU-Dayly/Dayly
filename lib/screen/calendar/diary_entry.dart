@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'diary_list.dart';
-import '../diary/DiarySwipeScreen.dart';
 
-class DiaryModifyScreen extends StatelessWidget {
+class DiaryEntryScreen extends StatelessWidget {
   final DateTime date;
   final String content;
   final void Function(DateTime) onDelete;
 
-  DiaryModifyScreen({
+  DiaryEntryScreen({
     required this.date,
     required this.content,
     required this.onDelete,
@@ -171,12 +170,12 @@ class DiaryModifyScreen extends StatelessWidget {
   }
 
 // DiaryListScreen의 diaryEntries에서 해당 날짜 일기 삭제
-  void _deleteDiaryEntry(DateTime date, BuildContext context) {
-    DiaryListScreen.diaryEntries.removeWhere(
-      (entry) => entry['date'] == date,
-    );
-    Navigator.pop(context); // 이전 화면으로 이동
-  }
+  // void _deleteDiaryEntry(DateTime date, BuildContext context) {
+  //   DiaryListScreen.diaryEntries.removeWhere(
+  //     (entry) => entry['date'] == date,
+  //   );
+  //   Navigator.pop(context); // 이전 화면으로 이동
+  // }
 
   Widget _getIcon(int index) {
     switch (index) {

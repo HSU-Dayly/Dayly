@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import './calendar.dart';
 import '../words/word_list.dart';
 import 'package:intl/intl.dart';
+import 'diary_entry.dart';
 
 void main() {
   runApp(MyApp());
@@ -17,7 +18,7 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class DiaryListScreen extends StatelessWidget {
+class DiaryListScreen extends StatefulWidget {
   static final List<Map<String, dynamic>> diaryEntries = [
     {
       "date": DateTime(2024, 11, 8),
@@ -36,6 +37,19 @@ class DiaryListScreen extends StatelessWidget {
     },
     // 추가 임시 일기 데이터
   ];
+
+  @override
+  _DiaryListScreenState createState() => _DiaryListScreenState();
+}
+
+class _DiaryListScreenState extends State<DiaryListScreen> {
+  void _deleteDiaryEntry(DateTime date) {
+    setState(() {
+      DiaryListScreen.diaryEntries
+          .removeWhere((entry) => entry['date'] == date);
+    });
+    Navigator.pop(context); // 뒤로 가기
+  }
 
   void _onItemTapped(int index, BuildContext context) {
     switch (index) {
@@ -63,7 +77,8 @@ class DiaryListScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // 날짜 기준 diaryEntries를 내림차순 정렬 - 최근 날짜가 맨 위로 오도록
-    final sortedDiaryEntries = List<Map<String, dynamic>>.from(diaryEntries)
+    final sortedDiaryEntries = List<Map<String, dynamic>>.from(
+        DiaryListScreen.diaryEntries)
       ..sort(
           (a, b) => (b['date'] as DateTime).compareTo(a['date'] as DateTime));
 
@@ -98,10 +113,15 @@ class DiaryListScreen extends StatelessWidget {
 
           return GestureDetector(
             onTap: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('$dateText : 일기 화면으로 이동??'),
-                  duration: const Duration(seconds: 2),
+              // DiaryEntryScreen으로 이동, 선택된 날짜와 내용을 전달
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => DiaryEntryScreen(
+                    date: entry['date'],
+                    content: entry['content'],
+                    onDelete: _deleteDiaryEntry,
+                  ),
                 ),
               );
             },
