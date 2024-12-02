@@ -5,7 +5,7 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 import 'diary_list.dart';
 import '../words/word_list.dart';
-import 'diary_entry.dart';
+import '../diary/DiarySwipeScreen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized(); // 비동기 초기화
@@ -14,6 +14,8 @@ void main() async {
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -41,6 +43,8 @@ class MyApp extends StatelessWidget {
 }
 
 class CalendarScreen extends StatefulWidget {
+  const CalendarScreen({super.key});
+
   @override
   _CalendarScreenState createState() => _CalendarScreenState();
 }
@@ -49,55 +53,13 @@ class _CalendarScreenState extends State<CalendarScreen> {
   DateTime _selectedDay = DateTime.now();
   DateTime _focusedDay = DateTime.now();
   int _selectedIndex = 0; // BottomNavigationBar의 선택된 인덱스 초기화
-  Map<DateTime, List<String>> _events = {}; // 날짜별 이벤트 저장
 
-  @override
-  void initState() {
-    super.initState();
-    _initializeEvents();
-  }
-
-  // DiaryListScreen의 데이터를 기반으로 이벤트를 초기화
-  void _initializeEvents() {
-    _events = {};
-    for (var entry in DiaryListScreen.diaryEntries) {
-      DateTime normalizedDate = DateTime(
-        entry['date'].year,
-        entry['date'].month,
-        entry['date'].day,
-      );
-      _events[normalizedDate] = ['Event'];
-    }
-  }
-
-  // 일기를 삭제하고 이벤트 데이터를 업데이트
-  void _deleteDiary(DateTime date) {
-    setState(() {
-      DiaryListScreen.diaryEntries
-          .removeWhere((entry) => isSameDay(entry['date'], date));
-      _initializeEvents(); // 이벤트 데이터 재생성
-    });
-  }
-
-  /// 이벤트 데이터를 다시 빌드
-  void _refreshEvents() {
-    setState(() {
-      _initializeEvents();
-    });
-  }
-
-  // 선택된 날짜에 맞는 일기 내용을 가져오는 함수
-  String? _getDiaryContent(DateTime date) {
-    for (var entry in DiaryListScreen.diaryEntries) {
-      DateTime entryDate = entry['date'] as DateTime;
-      if (entryDate.year == date.year &&
-          entryDate.month == date.month &&
-          entryDate.day == date.day) {
-        return entry['content'] as String;
-      }
-    }
-    return null;
-  }
+  // // 임시 데이터 예시: 날짜별 일기 내용
+  // Map<DateTime, String> diaryEntries = {
+  //   DateTime(2024, 11, 7):
+  //       "Today, I went to school. I will learn about programming language.",
+  //   DateTime(2024, 11, 8): "It's pouring here all day. I think I got a cold.",
+  // };
 
   void _onItemTapped(int index) {
     setState(() {
@@ -136,7 +98,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
 
     // 선택된 날짜에 해당하는 일기 내용을 diaryEntries에서 가져오기
     String? diaryContent = DiaryListScreen.diaryEntries.firstWhere(
-      (entry) => isSameDay(entry['date'], selectedDateOnly),
+      (entry) => entry['date'] == selectedDateOnly,
       orElse: () => {'content': null},
     )['content'];
 
@@ -312,8 +274,11 @@ class _CalendarScreenState extends State<CalendarScreen> {
               // }
               // return [];
               // 일기 작성된 날에만 이벤트 반환
-              // DateTime dayWithoutTime = DateTime(day.year, day.month, day.day);
-              return _events[DateTime(day.year, day.month, day.day)] ?? [];
+              DateTime dayWithoutTime = DateTime(day.year, day.month, day.day);
+              return DiaryListScreen.diaryEntries
+                      .any((entry) => entry['date'] == dayWithoutTime)
+                  ? ['Event']
+                  : [];
             },
           ),
           const SizedBox(height: 10),
@@ -339,37 +304,24 @@ class _CalendarScreenState extends State<CalendarScreen> {
                 const SizedBox(height: 10),
                 GestureDetector(
                   onTap: () {
-                    if (diaryContent != null) {
-                      // 일기가 있는 경우 DiaryEntryScreen으로 이동
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => DiaryEntryScreen(
-                            date: _selectedDay,
-                            content: diaryContent,
-                            onDelete: (date) {
-                              _deleteDiary(date); // 삭제 후 이벤트 데이터 업데이트
-                              Navigator.pop(context);
-                            },
-                          ),
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('$formattedDate : 일기 작성 화면으로 이동합니다.'),
+                        duration: const Duration(seconds: 2),
+                        action: SnackBarAction(
+                          label: '이동',
+                          onPressed: () {
+                            // 일기 작성 화면으로 이동
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => DiarySwipeScreen(
+                                      selectedDate: _selectedDay)),
+                            );
+                          },
                         ),
-                      ).then((_) {
-                        // DiaryEntryScreen에서 돌아올 때 이벤트 갱신
-                        setState(() {
-                          _refreshEvents();
-                        });
-                      });
-                    } else {
-                      // 일기가 없는 경우 새로 일기 작성하는 스크린으로 이동
-                      // Navigator.push(
-                      //   context,
-                      //   MaterialPageRoute(
-                      //     builder: (context) => NewDiaryScreen(
-                      //       date: _selectedDay,
-                      //     ),
-                      //   ),
-                      // );
-                    }
+                      ),
+                    );
                   },
                   child: Text(
                     diaryContent ?? "새로운 일기를 작성해보세요.",

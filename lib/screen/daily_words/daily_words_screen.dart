@@ -59,7 +59,7 @@ class _DailyWordsScreenState extends State<DailyWordsScreen> {
         'model': 'gpt-4',
         'messages': messages,
         'max_tokens': 1000, // 충분한 토큰 수 설정
-        'temperature': 0.0,
+        'temperature': 0.7,
       }),
     );
 
@@ -253,7 +253,7 @@ class _DailyWordsScreenState extends State<DailyWordsScreen> {
                           title: Text(
                             expression,
                             style: TextStyle(
-                              fontSize: 26.0,
+                              fontSize: 24.0,
                               fontWeight: FontWeight.bold,
                               backgroundColor: Color(0xFFFFEA00).withOpacity(0.34),
                             ),
