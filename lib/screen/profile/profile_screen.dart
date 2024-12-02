@@ -3,9 +3,10 @@ import 'dart:ui';
 import 'package:dayly/global.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../local_notifications.dart';
 import 'components/dialogs.dart';
-import '../../global.dart';
 
 class ProfileScreen extends StatefulWidget {
   @override
@@ -16,6 +17,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   int totalDays = 30;
   int totalDiary = 45;
   int diaryInARow = 7;
+  String alarmTime = '17:00';
 
   @override
   void initState() {
@@ -25,32 +27,45 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   // Firebase에서 닉네임 가져오기
   void _fetchUsername() async {
-    try {
-      DatabaseReference ref = FirebaseDatabase.instance.ref('users/USER_NAME'); // Firebase 경로
-      DataSnapshot snapshot = await ref.get();
-      if (snapshot.exists) {
-        setState(() {
-          USER_NAME = snapshot.child('username').value.toString();
-        });
-      } else {
-        setState(() {
-          USER_NAME = '사용자'; // 닉네임 없을 경우 기본값
-        });
-      }
-    } catch (e) {
-      print('닉네임 불러오기 실패: $e');
+    final prefs = await SharedPreferences.getInstance();
+    USER_NAME = prefs.getString('userName')!;
+  }
+
+  void _showAlarmDialog() async {
+    final String? selectedTime = await showDialog<String>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlarmDialog(alarmTime); // 현재 alarmTime 전달
+      },
+    );
+
+    if (selectedTime != null) {
       setState(() {
-        USER_NAME = '사용자'; // 오류 시 기본값
+        alarmTime = selectedTime; // 반환된 값을 alarmTime에 반영
       });
+
+      List<String> timeParts = alarmTime.split(':');
+      int hour = int.parse(timeParts[0]);
+      int minute = int.parse(timeParts[1]);
+
+      _scheduleAlarm(hour, minute);
     }
   }
 
-  void _showAlarmDialog() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlarmDialog();
-      },
+  void _scheduleAlarm(int hour, int minute) {
+    final now = DateTime.now();
+    final alarmTime = DateTime(now.year, now.month, now.day, hour, minute);
+
+    // 현재 시간보다 이전 시간인 경우 다음 날로 예약
+    final adjustedAlarmTime = alarmTime.isBefore(now)
+        ? alarmTime.add(Duration(days: 1))
+        : alarmTime;
+
+    LocalNotifications.scheduleNotification(
+      title: '알림',
+      body: '일기를 작성할 시간입니다!',
+      hour: adjustedAlarmTime.hour,
+      minute: adjustedAlarmTime.minute,
     );
   }
 
@@ -149,7 +164,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(
-                '매일 17 : 00',
+                '매일 $alarmTime',
                 style: TextStyle(
                   fontSize: 20,
                 ),
