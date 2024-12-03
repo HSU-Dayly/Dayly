@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'DiarySwipeScreen.dart';
 import 'package:provider/provider.dart';
@@ -168,6 +169,10 @@ class AnalysisResultScreen extends StatelessWidget {
   }
 
   void _showSaveDialog(BuildContext context, List<String> vocabulary) {
+    final selectedDate =
+        Provider.of<DiaryEntryModel>(context, listen: false).selectedDate;
+    final sentences = analysisData.sentences;
+
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -176,16 +181,36 @@ class AnalysisResultScreen extends StatelessWidget {
           content: Text('저장하시겠습니까?'),
           actions: [
             TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(); // 첫 번째 모달 닫기
-                // 여기에서 저장 동작을 추가할 수 있음
-                _showVocabularyDialog(context, vocabulary); // 두 번째 모달 호출
+              onPressed: () async {
+                Navigator.of(context).pop(); // 모달 닫기
+
+                // Firestore에 저장 로직 추가
+                try {
+                  await FirebaseFirestore.instance
+                      .collection('diary_entries') // Firestore의 컬렉션 이름
+                      .doc(selectedDate.toString()) // 날짜를 문서 ID로 사용
+                      .set({
+                    'date': selectedDate.toIso8601String(),
+                    'analyzedSentences': sentences,
+                    'vocabulary': vocabulary,
+                  });
+
+                  // 저장 성공 메시지
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('저장되었습니다!')),
+                  );
+                } catch (e) {
+                  // 저장 실패 메시지
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('저장 실패: $e')),
+                  );
+                }
               },
               child: Text('확인'),
             ),
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop(); // 첫 번째 모달 닫기
+                Navigator.of(context).pop(); // 모달 닫기
               },
               child: Text('취소'),
             ),
