@@ -22,7 +22,7 @@ class WritingPracticeScreen extends StatelessWidget {
       return;
     }
 
-    if (!text.contains(randomEng)) {
+    if (!text.contains(randomEng.toLowerCase())) {
       _showAlertDialog(context, '', '"$randomEng"를 포함해\n 작성해주세요!');
       return;
     }
