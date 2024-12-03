@@ -1,7 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'DiarySwipeScreen.dart';
 import 'package:provider/provider.dart';
+import '../../global.dart';
 
 class AnalysisResultScreen extends StatelessWidget {
   final AnalysisData analysisData;
@@ -168,70 +170,76 @@ class AnalysisResultScreen extends StatelessWidget {
     }).toList();
   }
 
-  void _showSaveDialog(BuildContext context, List<String> vocabulary) {
-    final selectedDate =
-        Provider.of<DiaryEntryModel>(context, listen: false).selectedDate;
-    final sentences = analysisData.sentences;
+  void _showSaveDialog(BuildContext context, List<String> vocabulary) async {
+    final selectedWords = await _showVocabularyDialog(context, vocabulary);
 
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('저장'),
-          content: Text('저장하시겠습니까?'),
-          actions: [
-            TextButton(
-              onPressed: () async {
-                Navigator.of(context).pop(); // 모달 닫기
+    if (selectedWords.isNotEmpty) {
+      final selectedDate =
+          Provider.of<DiaryEntryModel>(context, listen: false).selectedDate;
+      final sentences = analysisData.sentences;
 
-                // Firestore에 저장 로직 추가
-                try {
-                  await FirebaseFirestore.instance
-                      .collection('diary_entries') // Firestore의 컬렉션 이름
-                      .doc(selectedDate.toString()) // 날짜를 문서 ID로 사용
-                      .set({
-                    'date': selectedDate.toIso8601String(),
-                    'analyzedSentences': sentences,
-                    'vocabulary': vocabulary,
-                  });
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('저장'),
+            content: Text('저장하시겠습니까?'),
+            actions: [
+              TextButton(
+                onPressed: () async {
+                  Navigator.of(context).pop(); // 모달 닫기
 
-                  // 저장 성공 메시지
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('저장되었습니다!')),
-                  );
-                } catch (e) {
-                  // 저장 실패 메시지
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('저장 실패: $e')),
-                  );
-                }
-              },
-              child: Text('확인'),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(); // 모달 닫기
-              },
-              child: Text('취소'),
-            ),
-          ],
-        );
-      },
-    );
+                  // Firestore에 저장 로직 추가
+                  try {
+                    await FirebaseFirestore.instance
+                        .collection('diary_entries')
+                        .doc(selectedDate.toString())
+                        .set({
+                      'date': selectedDate.toIso8601String(),
+                      'analyzedSentences': sentences,
+                      'vocabulary': selectedWords, // 선택된 단어만 저장
+                    });
+
+                    // 저장 성공 메시지
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('저장되었습니다!')),
+                    );
+                  } catch (e) {
+                    // 저장 실패 메시지
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('저장 실패: $e')),
+                    );
+                  }
+                },
+                child: Text('확인'),
+              ),
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop(); // 모달 닫기
+                },
+                child: Text('취소'),
+              ),
+            ],
+          );
+        },
+      );
+    }
   }
 
-  void _showVocabularyDialog(BuildContext context, List<String> vocabulary) {
+  Future<List<String>> _showVocabularyDialog(
+      BuildContext context, List<String> vocabulary) async {
     // 선택된 단어를 저장할 리스트 (노란색으로 표시된 단어만 저장)
     List<String> selectedWords = [];
 
-    showDialog(
+    // 다이얼로그를 표시하고 사용자가 단어를 선택하면, 선택된 단어들을 반환합니다.
+    await showDialog(
       context: context,
       builder: (BuildContext context) {
         return StatefulBuilder(
           builder: (BuildContext context, StateSetter setState) {
             return AlertDialog(
               title: Text(
-                '단어장에 추가하고싶은 단어를 골라주세요',
+                '단어장에 추가하고 싶은 단어를 골라주세요',
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.w400),
               ),
               content: SingleChildScrollView(
@@ -281,23 +289,13 @@ class AnalysisResultScreen extends StatelessWidget {
                   onPressed: () {
                     Navigator.of(context).pop(); // 모달 닫기
                   },
-                  child: const Text(
-                    '취소',
-                    // 모달창 스타일 수정중
-                    // style: TextStyle(
-                    //   fontSize: 18,
-                    //   color: Color(0XFF776767),
-                    //   fontWeight: FontWeight.bold, // 텍스트를 굵게 설정
-                    // )
-                  ),
+                  child: const Text('취소'),
                 ),
                 // 추가 버튼 (선택된 단어를 저장)
                 TextButton(
                   onPressed: () {
                     if (selectedWords.isNotEmpty) {
-                      // 노란색으로 선택된 단어들만 저장
-                      print("저장된 단어들: $selectedWords");
-                      // 이 부분에 실제로 단어장을 업데이트하거나 DB에 저장하는 로직을 추가하세요.
+                      // 노란색으로 선택된 단어들만 반환
                       Navigator.of(context).pop(); // 모달 닫기
                     } else {
                       // 선택된 단어가 없으면 알림 표시
@@ -314,5 +312,7 @@ class AnalysisResultScreen extends StatelessWidget {
         );
       },
     );
+
+    return selectedWords; // 선택된 단어들 반환
   }
 }
