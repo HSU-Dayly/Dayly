@@ -1,120 +1,103 @@
 import 'package:flutter/material.dart';
-import './calendar.dart';
-import '../words/word_list.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 
-void main() {
-  runApp(MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      home: DiaryListScreen(),
-      debugShowCheckedModeBanner: false,
-    );
-  }
-}
-
 class DiaryListScreen extends StatelessWidget {
-  static final List<Map<String, dynamic>> diaryEntries = [
-    {
-      "date": DateTime(2024, 11, 8),
-      "content":
-          "Today, I worked on my UI design. I did well in the morning and walked in the afternoon. After dinner, I relaxed by reading a book. It was a simple but productive day."
-    },
-    {
-      "date": DateTime(2024, 11, 7),
-      "content":
-          "Today I spent the entire day studying for my upcoming exams. I feel a bit stressed, but I'm trying to stay focused. Hopefully, all the hard work will pay off soon!"
-    },
-    {
-      "date": DateTime(2024, 11, 15),
-      "content":
-          "Woke up early and felt surprisingly refreshed. The afternoon was spent reading a book and enjoying some quiet time. Ended the day with a short walk, which helped clear my mind before bed."
-    },
-    // 추가 임시 일기 데이터
-  ];
-
-  @override
   Widget build(BuildContext context) {
-    // 날짜 기준 diaryEntries를 내림차순 정렬 - 최근 날짜가 맨 위로 오도록
-    final sortedDiaryEntries = List<Map<String, dynamic>>.from(diaryEntries)
-      ..sort(
-          (a, b) => (b['date'] as DateTime).compareTo(a['date'] as DateTime));
-
     return Scaffold(
-      backgroundColor: Colors.grey[200],
-      appBar: AppBar(
-        title: const Text(
-          'Dayly',
-          style: TextStyle(
-            fontSize: 35,
-            color: Color.fromRGBO(88, 71, 51, 0.992),
-            fontFamily: 'HakgyoansimBadasseugiOTFL',
+      backgroundColor: const Color(0xFFEEEEEE),
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(kToolbarHeight),
+        child: AppBar(
+          title: Text(
+            'Dayly',
+            style: TextStyle(
+              fontSize: 36.0,
+              fontWeight: FontWeight.bold,
+              color: Color(0XFF776767),
+            ),
           ),
-        ),
-        centerTitle: true,
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back,
-              color: Color.fromRGBO(88, 71, 51, 0.992)),
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
+          centerTitle: true,
+          backgroundColor: const Color(0xFFEEEEEE),
+          elevation: 0,
         ),
       ),
-      body: ListView.builder(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-        itemCount: sortedDiaryEntries.length,
-        itemBuilder: (context, index) {
-          final entry = sortedDiaryEntries[index];
-          final dateText = DateFormat.MMMd().format(entry['date'] as DateTime);
+      body: StreamBuilder<QuerySnapshot>(
+        stream: FirebaseFirestore.instance
+            .collection('diary_entries') // Firestore 컬렉션 이름
+            .snapshots(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          }
 
-          return GestureDetector(
-            onTap: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('$dateText : 일기 화면으로 이동??'),
-                  duration: const Duration(seconds: 2),
-                ),
+          if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+            return Center(
+              child: Text(
+                '저장된 일기가 없습니다.',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+            );
+          }
+
+          final diaryDocs = snapshot.data!.docs;
+
+          // 모든 문서의 analyzedSentences 배열을 하나로 합치기
+          final allSentences = diaryDocs.expand((doc) {
+            return (doc['analyzedSentences'] as List<dynamic>? ?? []);
+          }).toList();
+
+          if (allSentences.isEmpty) {
+            return Center(
+              child: Text(
+                '분석된 문장이 없습니다.',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
+            );
+          }
+
+          return ListView.builder(
+            itemCount: allSentences.length,
+            itemBuilder: (context, index) {
+              final sentence = allSentences[index];
+              final date = sentence['date'] != null
+                  ? DateTime.parse(sentence['date'])
+                  : DateTime.now();
+              final corrected = sentence['corrected'] ?? '내용 없음';
+
+              // 날짜 형식을 "MMM d"로 변경 (e.g., Oct 8)
+              final formattedDate = DateFormat('MMM d').format(date);
+
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Divider(thickness: 2, color: Colors.grey[300]), // 구분선
+                  Padding(
+                    padding: const EdgeInsets.only(left: 16.0), // 날짜 패딩
+                    child: Text(
+                      formattedDate, // 날짜 출력
+                      style: TextStyle(
+                        fontSize: 24, // 날짜 글씨 크기
+                        fontWeight: FontWeight.bold,
+                        color: Color(0XFF776767),
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 8), // 날짜와 내용 사이 간격
+                  Padding(
+                    padding: const EdgeInsets.only(left: 16.0), // 내용 패딩
+                    child: Text(
+                      corrected, // 수정된 내용 출력
+                      style: TextStyle(
+                        fontSize: 18, // 내용 글씨 크기
+                        color: Colors.black54,
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 16), // 다음 항목과 간격
+                ],
               );
             },
-            child: Card(
-              color: Colors.grey[200],
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
-              elevation: 1,
-              margin: const EdgeInsets.only(bottom: 10),
-              child: Padding(
-                padding: const EdgeInsets.all(15.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      dateText,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        color: Colors.grey,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    Text(
-                      entry['content'],
-                      style: const TextStyle(
-                        fontSize: 16,
-                        color: Colors.black,
-                        fontFamily: 'HakgyoansimBadasseugiOTFL',
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
           );
         },
       ),
