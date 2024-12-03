@@ -1,7 +1,9 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'DiarySwipeScreen.dart';
 import 'package:provider/provider.dart';
 import '../calendar/calendar.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 // class VocabularyItem {
 //   final String word;
 //   final List<String> meanings;
@@ -56,7 +58,7 @@ class AnalysisResultScreen extends StatelessWidget {
                   onTap: () {
                     // '저장' 클릭 시 실행될 함수
                     print('저장 버튼이 클릭되었습니다');
-                    _showSaveDialog(context, analyzedVocas);
+                    _showSaveDialog(context, wordList);
                   },
                   child: Container(
                     padding: const EdgeInsets.symmetric(
@@ -174,74 +176,90 @@ class AnalysisResultScreen extends StatelessWidget {
     }).toList();
   }
 
-  void _showSaveDialog(BuildContext context, List<VocabularyItem> vocabulary) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(
-            '일기 저장',
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
-          ),
-          content: Text(
-            '첨삭된 일기를 저장하시겠습니까?',
-            style: TextStyle(fontSize: 17),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(); // 첫 번째 모달 닫기
-              },
-              child: Text(
-                '취소',
-                style:
-                    TextStyle(color: Colors.black, fontWeight: FontWeight.w600),
+  // vocabulary를 List<String>으로 받음
+  void _showSaveDialog(BuildContext context, List<String> vocabulary) async {
+    // 선택된 단어를 반환받음
+    final selectedWords = await _showVocabularyDialog(context, vocabulary);
+
+    if (selectedWords.isNotEmpty) {
+      final selectedDate =
+          Provider.of<DiaryEntryModel>(context, listen: false).selectedDate;
+      final sentences = analysisData.sentences;
+
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('저장'),
+            content: Text('저장하시겠습니까?'),
+            actions: [
+              TextButton(
+                onPressed: () async {
+                  Navigator.of(context).pop(); // 다이얼로그 닫기
+
+                  // Firestore에 저장
+                  try {
+                    await FirebaseFirestore.instance
+                        .collection('diary_entries')
+                        .doc(selectedDate.toString())
+                        .set({
+                      'date': selectedDate.toIso8601String(),
+                      'analyzedSentences': sentences,
+                      'vocabulary': selectedWords, // 선택된 단어 저장
+                    });
+
+                    // 성공 메시지
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('저장되었습니다!')),
+                    );
+                  } catch (e) {
+                    // 실패 메시지
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('저장 실패: $e')),
+                    );
+                  }
+                },
+                child: Text('확인'),
               ),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(); // 첫 번째 모달 닫기
-                _showVocabularyDialog(context, vocabulary); // 두 번째 모달 호출
-              },
-              child: Text(
-                '확인',
-                style:
-                    TextStyle(color: Colors.black, fontWeight: FontWeight.w600),
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop(); // 다이얼로그 닫기
+                },
+                child: Text('취소'),
               ),
-            )
-          ],
-        );
-      },
-    );
+            ],
+          );
+        },
+      );
+    }
   }
 
-  void _showVocabularyDialog(
-      BuildContext context, List<VocabularyItem> vocabulary) {
-    // 선택된 단어를 저장할 리스트 (노란색으로 표시된 단어만 저장)
-    List<VocabularyItem> selectedWords = [];
+  // vocabulary를 List<String>으로 받음
+  Future<List<String>> _showVocabularyDialog(
+      BuildContext context, List<String> vocabulary) async {
+    List<String> selectedWords = [];
 
-    showDialog(
+    await showDialog(
       context: context,
       builder: (BuildContext context) {
         return StatefulBuilder(
           builder: (BuildContext context, StateSetter setState) {
             return AlertDialog(
               title: Text(
-                '단어장에 저장할 단어를 골라주세요',
-                style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
+                '단어장에 추가하고 싶은 단어를 골라주세요',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w400),
               ),
               content: SingleChildScrollView(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: vocabulary
-                      .map((item) => GestureDetector(
+                      .map((word) => GestureDetector(
                             onTap: () {
                               setState(() {
-                                // 단어 클릭 시 토글
-                                if (selectedWords.contains(item)) {
-                                  selectedWords.remove(item); // 회색으로 변경
+                                if (selectedWords.contains(word)) {
+                                  selectedWords.remove(word); // 선택 해제
                                 } else {
-                                  selectedWords.add(item); // 노란색으로 변경
+                                  selectedWords.add(word); // 선택
                                 }
                               });
                             },
@@ -249,19 +267,18 @@ class AnalysisResultScreen extends StatelessWidget {
                               padding: const EdgeInsets.only(bottom: 10),
                               child: Row(
                                 children: [
-                                  // 선택된 단어일 경우 노란색, 아니면 회색으로 표시되는 원
                                   Container(
                                     width: 10,
                                     height: 10,
                                     decoration: BoxDecoration(
                                       shape: BoxShape.circle,
-                                      color: selectedWords.contains(item)
-                                          ? Colors.yellow // 노란색
-                                          : Colors.grey, // 회색
+                                      color: selectedWords.contains(word)
+                                          ? Colors.yellow
+                                          : Colors.grey,
                                     ),
                                   ),
                                   const SizedBox(width: 15),
-                                  Text(item.word,
+                                  Text(word,
                                       style: const TextStyle(fontSize: 18)),
                                 ],
                               ),
@@ -271,78 +288,23 @@ class AnalysisResultScreen extends StatelessWidget {
                 ),
               ),
               actions: [
-                // 건너뛰기 버튼
                 TextButton(
                   onPressed: () {
-                    // 건너뛰기: 단어 선택 없이 일기만 저장
-                    // 일기 저장 코드 작성 (예: 일기 저장 메소드 호출)
-                    print("일기만 저장");
-
-                    // 모달 닫기
-                    Navigator.of(context).pop();
-
-                    // 저장 완료 메시지 표시
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('일기 저장 완료')),
-                    );
-                    // 이 시점에서 diaryModel.resetEntry() 호출
-                    final diaryModel =
-                        Provider.of<DiaryEntryModel>(context, listen: false);
-                    diaryModel.resetEntry();
-
-                    // 캘린더 화면으로 이동
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(builder: (context) => CalendarScreen()),
-                    );
+                    Navigator.of(context).pop(); // 다이얼로그 닫기
                   },
-                  child: Text(
-                    '건너뛰기',
-                    style: TextStyle(
-                        color: Colors.black, fontWeight: FontWeight.w600),
-                  ),
+                  child: const Text('취소'),
                 ),
-                // 저장 버튼
                 TextButton(
                   onPressed: () {
                     if (selectedWords.isNotEmpty) {
-                      // 저장된 단어 출력
-                      print("저장된 단어들: ${selectedWords.map((e) => e.word)}");
-                      print("저장된 뜻들: ${selectedWords.map((e) => e.meanings)}");
-
-                      // 일기와 단어 둘 다 저장 코드 작성 (예: 일기 저장 메소드와 단어 저장 메소드 호출)
-                      print("일기와 단어 저장");
-
-                      // 모달 닫기
-                      Navigator.of(context).pop();
-
-                      // 저장 완료 메시지 표시
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('일기와 단어 저장 완료')),
-                      );
-
-                      // 이 시점에서 diaryModel.resetEntry() 호출
-                      final diaryModel =
-                          Provider.of<DiaryEntryModel>(context, listen: false);
-                      diaryModel.resetEntry();
-
-                      // 캘린더 화면으로 이동
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => CalendarScreen()),
-                      );
+                      Navigator.of(context).pop(); // 선택한 단어들 반환
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('저장할 단어를 선택해주세요')),
+                        SnackBar(content: Text('저장할 단어를 선택해주세요')),
                       );
                     }
                   },
-                  child: Text(
-                    '저장',
-                    style: TextStyle(
-                        color: Colors.black, fontWeight: FontWeight.w600),
-                  ),
+                  child: const Text('저장'),
                 ),
               ],
             );
@@ -350,5 +312,7 @@ class AnalysisResultScreen extends StatelessWidget {
         );
       },
     );
+
+    return selectedWords; // 선택된 단어들 반환
   }
 }
