@@ -126,6 +126,37 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
+  void _confirmLogout() async {
+  final shouldLogout = await showDialog<bool>(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Text('정말 로그아웃하시겠습니까?\n기존 정보가 모두 초기화됩니다.', style: TextStyle(fontSize: 17),),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(false); // 다이얼로그 닫고 false 반환
+            },
+            child: Text('취소'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(true); // 다이얼로그 닫고 true 반환
+            },
+            child: Text('확인'),
+          ),
+        ],
+      );
+    },
+  );
+
+  // shouldLogout이 true인 경우에만 _logout 호출
+  if (shouldLogout == true) {
+    _logout();
+  }
+}
+
+
   void _showGoalDialog() async {
     final int? goal = await showDialog<int>(
       context: context,
@@ -174,13 +205,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
             Padding(
                 padding: const EdgeInsets.only(right: 20.0),
                 child: IconButton(
-                  onPressed: _logout,
-                  icon: Icon(
-                      Icons.logout,
-                      size: 28,
-                      color: Color(0xFF776767)
-                  ),
-                ),
+  onPressed: _confirmLogout, // _logout에서 _confirmLogout으로 변경
+  icon: Icon(
+    Icons.logout,
+    size: 28,
+    color: Color(0xFF776767),
+  ),
+),
             ),
           ],
         ),
