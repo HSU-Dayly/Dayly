@@ -179,6 +179,7 @@ class AnalysisResultScreen extends StatelessWidget {
   // vocabulary를 List<String>으로 받음
   void _showSaveDialog(BuildContext context, List<String> vocabulary) async {
     // 선택된 단어를 반환받음
+    FocusScope.of(context).requestFocus(FocusNode());
     final selectedWords = await _showVocabularyDialog(context, vocabulary);
 
     if (selectedWords.isNotEmpty) {
@@ -212,6 +213,13 @@ class AnalysisResultScreen extends StatelessWidget {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(content: Text('저장되었습니다!')),
                     );
+                    // 저장 후 CalendarPage로 이동
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => CalendarScreen(),
+                      ),
+                    );
                   } catch (e) {
                     // 실패 메시지
                     ScaffoldMessenger.of(context).showSnackBar(
@@ -237,6 +245,7 @@ class AnalysisResultScreen extends StatelessWidget {
   // vocabulary를 List<String>으로 받음
   Future<List<String>> _showVocabularyDialog(
       BuildContext context, List<String> vocabulary) async {
+    FocusScope.of(context).requestFocus(FocusNode());
     List<String> selectedWords = [];
 
     await showDialog(
