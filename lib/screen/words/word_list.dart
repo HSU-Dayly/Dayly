@@ -1,26 +1,50 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:dio/dio.dart'; // HTTP 요청용 패키지
 import '../calendar/calendar.dart';
+import '../../global.dart';
 
-class VocabularyScreen extends StatelessWidget {
-  // 임시 더미 데이터
-  final List<Map<String, dynamic>> vocabularyList = [
-    {
-      "word": "work",
-      "meanings": ["공부하다", "일하다", "직장에 다니다"]
-    },
-    {
-      "word": "make progress",
-      "meanings": ["어느 정도 진전이 있다"]
-    },
-    {
-      "word": "take a short walk",
-      "meanings": ["짧은 산책을 하다"]
-    },
-    {
-      "word": "go with the flow",
-      "meanings": ["흐름에 맡기다"]
-    },
-  ];
+class VocabularyScreen extends StatefulWidget {
+  @override
+  _VocabularyScreenState createState() => _VocabularyScreenState();
+}
+
+class _VocabularyScreenState extends State<VocabularyScreen> {
+  final Dio _dio = Dio();
+
+  Future<String> translateWord(String word) async {
+    try {
+      final response = await _dio.post(
+        'https://api.openai.com/v1/chat/completions',
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $openapiKey',
+            'Content-Type': 'application/json',
+          },
+        ),
+        data: {
+          'model': 'gpt-3.5-turbo',
+          'messages': [
+            {
+              'role': 'system',
+              'content': 'Translate the following word from English to Korean.'
+            },
+            {'role': 'user', 'content': word}
+          ],
+          'temperature': 0.7,
+        },
+      );
+
+      if (response.statusCode == 200) {
+        return response.data['choices'][0]['message']['content'].trim();
+      } else {
+        return '번역 실패';
+      }
+    } catch (e) {
+      print('Error during translation: $e');
+      return '번역 오류';
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -36,7 +60,6 @@ class VocabularyScreen extends StatelessWidget {
           ),
         ),
         centerTitle: true,
-        // back arrow 추가
         leading: IconButton(
           icon: const Icon(Icons.arrow_back,
               color: Color.fromRGBO(88, 71, 51, 0.992)),
@@ -65,51 +88,103 @@ class VocabularyScreen extends StatelessWidget {
             ),
             const SizedBox(height: 20),
             Expanded(
-              child: ListView.builder(
-                itemCount: vocabularyList.length,
-                itemBuilder: (context, index) {
-                  return Padding(
-                    padding: const EdgeInsets.only(bottom: 20),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            const Text(
-                              '• ',
-                              style: TextStyle(
-                                fontSize: 25, // 원 기호 크기 조절
-                                color: Colors.black54,
+              child: StreamBuilder<QuerySnapshot>(
+                stream: FirebaseFirestore.instance
+                    .collection('diary_entries')
+                    .snapshots(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+
+                  if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                    return const Center(
+                      child: Text(
+                        '저장된 단어가 없습니다.',
+                        style: TextStyle(fontSize: 16, color: Colors.black54),
+                      ),
+                    );
+                  }
+
+                  final vocabularyList = snapshot.data!.docs.expand((doc) {
+                    return (doc['vocabulary'] as List)
+                        .map((word) => word.toString())
+                        .toList();
+                  }).toList();
+
+                  return ListView.builder(
+                    itemCount: vocabularyList.length,
+                    itemBuilder: (context, index) {
+                      final word = vocabularyList[index];
+                      return FutureBuilder<String>(
+                        future: translateWord(word),
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return Padding(
+                              padding: const EdgeInsets.only(bottom: 20),
+                              child: Row(
+                                children: const [
+                                  Text(
+                                    '• ',
+                                    style: TextStyle(
+                                      fontSize: 25,
+                                      color: Colors.black54,
+                                    ),
+                                  ),
+                                  SizedBox(width: 5),
+                                  Text(
+                                    '번역 중...',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      color: Colors.black54,
+                                    ),
+                                  ),
+                                ],
                               ),
-                            ),
-                            const SizedBox(width: 5), // 단어와 원 사이 여백
-                            Text(
-                              vocabularyList[index]["word"],
-                              style: const TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 5),
-                        ...List.generate(
-                            vocabularyList[index]["meanings"].length, (i) {
+                            );
+                          }
+
                           return Padding(
-                            padding: const EdgeInsets.only(left: 20),
-                            child: Text(
-                              "${i + 1}. ${vocabularyList[index]["meanings"][i]}",
-                              style: const TextStyle(
-                                fontSize: 16,
-                                color: Colors.black54,
-                              ),
+                            padding: const EdgeInsets.only(bottom: 20),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text(
+                                  '• ',
+                                  style: TextStyle(
+                                    fontSize: 25,
+                                    color: Colors.black54,
+                                  ),
+                                ),
+                                const SizedBox(width: 5),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      word,
+                                      style: const TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.black,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 5),
+                                    Text(
+                                      snapshot.data ?? '번역 오류',
+                                      style: const TextStyle(
+                                        fontSize: 16,
+                                        color: Colors.black54,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
                             ),
                           );
-                        }),
-                      ],
-                    ),
+                        },
+                      );
+                    },
                   );
                 },
               ),
