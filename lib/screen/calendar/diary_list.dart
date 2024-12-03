@@ -57,16 +57,14 @@ class DiaryListScreen extends StatelessWidget {
           }
 
           return ListView.builder(
-            itemCount: allSentences.length,
+            itemCount: diaryDocs.length,
             itemBuilder: (context, index) {
-              final sentence = allSentences[index];
-              final date = sentence['date'] != null
-                  ? DateTime.parse(sentence['date'])
+              final doc = diaryDocs[index];
+              final date = doc['date'] != null
+                  ? DateTime.parse(doc['date']).toLocal() // ISO 형식의 날짜를 변환
                   : DateTime.now();
-              final corrected = sentence['corrected'] ?? '내용 없음';
-
-              // 날짜 형식을 "MMM d"로 변경 (e.g., Oct 8)
-              final formattedDate = DateFormat('MMM d').format(date);
+              final analyzedSentences = (doc['analyzedSentences'] as List<dynamic>? ?? []);
+              final formattedDate = DateFormat('MMM d').format(date); // 날짜 형식 지정
 
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -83,17 +81,19 @@ class DiaryListScreen extends StatelessWidget {
                       ),
                     ),
                   ),
-                  SizedBox(height: 8), // 날짜와 내용 사이 간격
-                  Padding(
-                    padding: const EdgeInsets.only(left: 16.0), // 내용 패딩
-                    child: Text(
-                      corrected, // 수정된 내용 출력
-                      style: TextStyle(
-                        fontSize: 18, // 내용 글씨 크기
-                        color: Colors.black54,
+                  ...analyzedSentences.map((sentence) {
+                    final corrected = sentence['corrected'] ?? '내용 없음';
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0), // 내용 패딩
+                      child: Text(
+                        corrected, // 수정된 내용 출력
+                        style: TextStyle(
+                          fontSize: 18, // 내용 글씨 크기
+                          color: Colors.black54,
+                        ),
                       ),
-                    ),
-                  ),
+                    );
+                  }).toList(),
                   SizedBox(height: 16), // 다음 항목과 간격
                 ],
               );
