@@ -37,29 +37,6 @@ class DiaryListScreen extends StatelessWidget {
     // 추가 임시 일기 데이터
   ];
 
-  void _onItemTapped(int index, BuildContext context) {
-    switch (index) {
-      case 0:
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => CalendarScreen()), // 메인 화면
-        );
-        break;
-      case 1:
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => VocabularyScreen()), // 단어장 화면
-        );
-        break;
-      case 2:
-        break;
-      case 3:
-        break;
-      default:
-        break;
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     // 날짜 기준 diaryEntries를 내림차순 정렬 - 최근 날짜가 맨 위로 오도록
@@ -140,87 +117,6 @@ class DiaryListScreen extends StatelessWidget {
             ),
           );
         },
-      ),
-
-      // 하단 아이콘 바
-      bottomNavigationBar: BottomNavigationBarWidget(
-        selectedIndex: 0,
-        onTap: (index) => _onItemTapped(index, context),
-      ),
-    );
-  }
-}
-
-class BottomNavigationBarWidget extends StatelessWidget {
-  final int selectedIndex;
-  final ValueChanged<int> onTap;
-
-  const BottomNavigationBarWidget({
-    Key? key,
-    required this.selectedIndex,
-    required this.onTap,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      height: 60,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          _buildBottomNavItem(
-            // icon: Icons.home_outlined,
-            imagePath: 'assets/images/home.png',
-            index: 0,
-            context: context,
-          ),
-          _buildBottomNavItem(
-            // icon: Icons.book_outlined,
-            imagePath: 'assets/images/dictionary.png',
-            index: 1,
-            context: context,
-          ),
-          _buildBottomNavItem(
-            // icon: Icons.library_books_outlined,
-            imagePath: 'assets/images/words.png',
-            index: 2,
-            context: context,
-          ),
-          _buildBottomNavItem(
-            // icon: Icons.person_outlined,
-            imagePath: 'assets/images/user.png',
-            index: 3,
-            context: context,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildBottomNavItem({
-    // required IconData icon,
-    required String imagePath,
-    required int index,
-    required BuildContext context,
-  }) {
-    return GestureDetector(
-      onTap: () => onTap(index),
-      child: Container(
-        width: MediaQuery.of(context).size.width / 4,
-        height: 60,
-        color: selectedIndex == index ? Colors.grey[300] : Colors.transparent,
-        padding: const EdgeInsets.symmetric(vertical: 10),
-        // child: Icon(
-        //   icon,
-        //   color: Color.fromRGBO(88, 71, 51, 0.992),
-        //   size: 25,
-        // ),
-        child: Image.asset(
-          imagePath,
-          color: const Color.fromRGBO(88, 71, 51, 0.992),
-          width: 25,
-          height: 25,
-        ),
       ),
     );
   }
