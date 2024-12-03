@@ -12,7 +12,7 @@ class DiaryEntryModel extends ChangeNotifier {
   String _entry = '';
   String _secondEntry = '';
   List<Map<String, String>> _analyzedSentences = [];
-  List<String> _analyzedVocabulary = [];
+  List<VocabularyItem> _analyzedVocabulary = [];
   bool _isAnalysisComplete = false;
   DateTime _selectedDate;
 
@@ -24,7 +24,7 @@ class DiaryEntryModel extends ChangeNotifier {
   DateTime get selectedDate => _selectedDate; // selectedDate getter 추가
   // 분석된 문장과 단어를 getter로 가져오기
   List<Map<String, String>> get analyzedSentences => _analyzedSentences;
-  List<String> get analyzedVocabulary => _analyzedVocabulary;
+  // List<VocabularyItem> get analyzedVocabulary => _analyzedVocabulary;
   bool get isAnalysisComplete => _isAnalysisComplete;
 
   void updateEntry(String newEntry) {
@@ -40,6 +40,8 @@ class DiaryEntryModel extends ChangeNotifier {
   void resetEntry() {
     _entry = ''; // 상태 초기화
     _secondEntry = ''; // 두 번째 텍스트박스 내용 초기화
+    _analyzedSentences = []; // 분석된 문장 리스트 초기화
+    _analyzedVocabulary = []; // 분석된 단어 리스트 초기화
     notifyListeners(); // 초기화된 상태를 구독자에게 알림
   }
 
@@ -73,9 +75,19 @@ class DiaryEntryModel extends ChangeNotifier {
   }
 }
 
+class VocabularyItem {
+  final String word;
+  final List<String> meanings; // 단수형이 아닌 복수형으로 처리
+
+  VocabularyItem({
+    required this.word,
+    required this.meanings,
+  });
+}
+
 class AnalysisData {
-  final List<Map<String, String>> sentences; // 문장 데이터
-  final List<String> vocabulary; // 단어 데이터
+  final List<Map<String, String>> sentences;
+  final List<VocabularyItem> vocabulary;
 
   AnalysisData({
     required this.sentences,
@@ -128,7 +140,7 @@ class _DiarySwipeScreenState extends State<DiarySwipeScreen> {
                       text: '작성한 내용이 모두 ',
                       style: TextStyle(
                           color: Colors.black,
-                          fontWeight: FontWeight.bold,
+                          // fontWeight: FontWeight.bold,
                           fontSize: 17),
                     ),
                     TextSpan(
@@ -143,7 +155,14 @@ class _DiarySwipeScreenState extends State<DiarySwipeScreen> {
                       text: '됩니다. \n정말로 일기 작성을 취소할까요?',
                       style: TextStyle(
                           color: Colors.black,
-                          fontWeight: FontWeight.bold,
+                          // fontWeight: FontWeight.bold,
+                          fontSize: 17),
+                    ),
+                    const TextSpan(
+                      text: '됩니다. \n정말로 일기 작성을 취소할까요?',
+                      style: TextStyle(
+                          color: Colors.black,
+                          // fontWeight: FontWeight.bold,
                           fontSize: 17),
                     ),
                   ],
@@ -293,8 +312,32 @@ class DiaryEntryScreen extends StatefulWidget {
 
 class _DiaryEntryScreenState extends State<DiaryEntryScreen>
     with AutomaticKeepAliveClientMixin {
-  // 텍스트 필드의 상태를 관리할 컨트롤러 추가
   final TextEditingController _controller = TextEditingController();
+
+  // 주제 추천 목록
+  final List<String> _suggestions = [
+    '오늘 가장 도전적이었던 순간은 무엇이었나요?',
+    '최근에 만난 사람 중 인상 깊었던 사람은 누구인가요?',
+    '내가 가장 좋아하는 장소와 그곳에서 느낀 감정은?',
+    '꿈속에서 만날 사람은 누구인가요?',
+    '내가 가장 두려워하는 것은 무엇인가요?',
+    '시간이 멈춘다면 가장 하고 싶은 일은 무엇인가요?',
+    '내가 사랑하는 것과 그것이 미치는 영향은?',
+    '지금 가장 기다려지는 순간은 언제인가요?',
+    '이상적인 하루는 어떻게 보내고 싶나요?',
+    '가장 의미 깊었던 책과 그 교훈은?',
+    '어린 시절 기억에 남는 순간은 무엇인가요?',
+    '행복이란 나에게 무엇인가요?',
+    '다른 나라에서 하루를 보내면 무엇을 하고 싶나요?',
+    '내가 한 작은 친절이 어떤 변화를 주었나요?',
+    '내가 추구하는 삶의 가치는 무엇인가요?',
+    '나의 가장 큰 성취는 무엇이었나요?',
+    '내가 감동받고 힐링되는 음악은 무엇인가요?',
+    '특별한 하루를 어떻게 보내고 싶나요?',
+    '놓치고 싶지 않은 순간은 무엇인가요?',
+    '최근에 나를 웃게 만든 일은 무엇인가요?',
+    '미래에 이루고 싶은 일과 그 계획은 무엇인가요?'
+  ];
 
   @override
   bool get wantKeepAlive => true;
@@ -304,6 +347,10 @@ class _DiaryEntryScreenState extends State<DiaryEntryScreen>
     super.build(context); // 첫 줄로 위치 변경
     final diaryModel = Provider.of<DiaryEntryModel>(context); // 모델 가져오기
     final selectedDate = Provider.of<DiaryEntryModel>(context).selectedDate;
+
+    // 랜덤으로 주제를 선택
+    final randomSuggestion = _suggestions[
+        (DateTime.now().millisecondsSinceEpoch ~/ 1000) % _suggestions.length];
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -346,7 +393,7 @@ class _DiaryEntryScreenState extends State<DiaryEntryScreen>
                 maxLines: 10,
                 maxLength: 500, // 글자 수 제한
                 decoration: InputDecoration(
-                  hintText: 'ex)앞으로 10년 후, 자신의 모습을 상상해보세요', // (수정) 주제 추천
+                  hintText: "ex) $randomSuggestion", // 랜덤 주제를 hintText로 설정
                   contentPadding: const EdgeInsets.all(16.0),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(16.0),
@@ -442,16 +489,27 @@ class _OtherScreenState extends State<OtherScreen>
   final TextEditingController diaryController = TextEditingController();
 
   @override
-  bool get wantKeepAlive => true; // 상태 유지 설정
+  bool get wantKeepAlive => true;
+
+  @override
+  void initState() {
+    super.initState();
+    // 일기 내용 초기화
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      // 모델의 secondEntry가 변경되었을 때 controller도 업데이트
+      diaryController.text =
+          Provider.of<DiaryEntryModel>(context, listen: false).secondEntry;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    super.build(context); // AutomaticKeepAliveClientMixin의 호출
+    super.build(context);
 
     final diaryModel = Provider.of<DiaryEntryModel>(context);
     final selectedDate = Provider.of<DiaryEntryModel>(context).selectedDate;
 
-    // 일기 내용이 있다면 controller에 초기화
+    // secondEntry 값이 변경될 때마다 controller의 값을 업데이트
     diaryController.text = diaryModel.secondEntry;
 
     return Padding(
@@ -704,7 +762,9 @@ class OtherScreen2 extends StatelessWidget {
   1. 틀린 부분만 찾아 해당 단어나 구문을 <red></red> 태그로 감싸서 분석 내용을 제공하세요.
   2. 아쉬운 표현이나 개선할 부분은 <yellow></yellow> 태그로 감싸주세요.
   3. 수정된 구문을 따로 제공하며, `sentences` 배열에 각 문장에 대한 해석(`translation`), 분석된 문장(`analysis`), 수정된 문장(`corrected`)을 포함하세요.
-  4. `vocabulary` 배열에는 교정된 부분 중 중요한 원형, 숙어, 또는 단어를 나열해 주세요. 즉, **틀린 부분이나 아쉬운 표현을 수정한 후 그 수정된 표현만 포함**하도록 하세요.
+  4. `vocabulary` 배열은 교정된 부분 중 주요 단어, 구문 또는 숙어를 정리하며, 각 항목은 다음 정보를 포함합니다:
+    - **`word`**: 수정된 문장에서 교정 또는 개선된 단어나 표현.
+    - **`meanings`**: 단어 또는 표현의 의미를 배열 형태로 제공. 문맥에 맞게 정리합니다.
   5. 절대로 전체 문장을 한꺼번에 태그로 감싸지 마세요.
 
 응답 형식:
@@ -718,7 +778,11 @@ class OtherScreen2 extends StatelessWidget {
     ...
   ],
   "vocabulary": [
-    "be going to", "more than", "smarter than"
+    {
+      "word": "example word",
+      "meanings": ["뜻1", "뜻2", "뜻3"]
+    },
+    ...
   ]
 }
 
@@ -739,7 +803,14 @@ class OtherScreen2 extends StatelessWidget {
     }
   ],
   "vocabulary": [
-    "be going to", "smarter than"
+    {
+      "word": "be going to",
+      "meanings": ["미래의 계획이나 의도를 나타냄. ~할 예정이다."]
+    },
+    {
+      "word": "smarter than",
+      "meanings": ["~보다 더 똑똑한", "~보다 더 현명한"]
+    }
   ]
 }
 
@@ -792,9 +863,15 @@ class OtherScreen2 extends StatelessWidget {
               .setAnalysisResult(
             AnalysisData(
               sentences: (sentences as List<dynamic>)
-                  .map((e) => Map<String, String>.from(e as Map)) // 문장 데이터 변환
+                  .map((e) => Map<String, String>.from(e as Map))
                   .toList(),
-              vocabulary: List<String>.from(vocabulary), // 단어 데이터 변환
+              vocabulary: (vocabulary as List<dynamic>)
+                  .map((e) => VocabularyItem(
+                        word: e['word'] as String,
+                        meanings: List<String>.from(
+                            e['meanings'] as List<dynamic>), // 배열로 처리
+                      ))
+                  .toList(),
             ),
           );
 
