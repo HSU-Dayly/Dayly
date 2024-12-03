@@ -1,6 +1,8 @@
+import 'package:dayly/screen/calendar/diary_modify.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
+import 'diary_modify.dart'; // 수정 화면
 
 class DiaryListScreen extends StatelessWidget {
   Widget build(BuildContext context) {
@@ -63,8 +65,10 @@ class DiaryListScreen extends StatelessWidget {
               final date = doc['date'] != null
                   ? DateTime.parse(doc['date']).toLocal() // ISO 형식의 날짜를 변환
                   : DateTime.now();
-              final analyzedSentences = (doc['analyzedSentences'] as List<dynamic>? ?? []);
-              final formattedDate = DateFormat('MMM d').format(date); // 날짜 형식 지정
+              final analyzedSentences =
+                  (doc['analyzedSentences'] as List<dynamic>? ?? []);
+              final formattedDate =
+                  DateFormat('MMM d').format(date); // 날짜 형식 지정
 
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -83,13 +87,42 @@ class DiaryListScreen extends StatelessWidget {
                   ),
                   ...analyzedSentences.map((sentence) {
                     final corrected = sentence['corrected'] ?? '내용 없음';
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0), // 내용 패딩
-                      child: Text(
-                        corrected, // 수정된 내용 출력
-                        style: TextStyle(
-                          fontSize: 18, // 내용 글씨 크기
-                          color: Colors.black54,
+
+                    return GestureDetector(
+                      onTap: () {
+                        // 일기 수정 화면으로 이동
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => DiaryModifyScreen(
+                              date: date,
+                              content: corrected,
+                              onDelete: (date) {
+                                // 삭제 콜백 동작 정의
+                                FirebaseFirestore.instance
+                                    .collection('diary_entries')
+                                    .doc(doc.id)
+                                    .delete()
+                                    .then((_) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(content: Text('일기가 삭제되었습니다.')),
+                                  );
+                                });
+                              },
+                            ),
+                          ),
+                        );
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.all(10),
+                        margin: const EdgeInsets.symmetric(vertical: 5),
+                        decoration: BoxDecoration(
+                          color: Colors.grey[200],
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          corrected, // 수정된 내용 출력
+                          style: const TextStyle(fontSize: 16),
                         ),
                       ),
                     );
