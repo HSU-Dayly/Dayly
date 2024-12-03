@@ -20,7 +20,6 @@ class _CalendarScreenState extends State<CalendarScreen> {
   @override
   void initState() {
     super.initState();
-    _fetchCorrectedSentences(_selectedDate);
     _fetchDiaryContent(_selectedDate);
   }
 
@@ -59,7 +58,6 @@ class _CalendarScreenState extends State<CalendarScreen> {
                   _selectedDate = selectedDay;
                   _focusedDate = focusedDay;
                 });
-                _fetchCorrectedSentences(selectedDay);
                 _fetchDiaryContent(selectedDay);
               },
               calendarStyle: CalendarStyle(
@@ -83,23 +81,23 @@ class _CalendarScreenState extends State<CalendarScreen> {
             ),
             _correctedSentences.isEmpty
                 ? Center(
-                    child: Text(
-                      '해당 날짜에 저장된 일기가 없습니다.',
-                      style:
-                          TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                    ),
-                  )
+              child: Text(
+                '해당 날짜에 저장된 일기가 없습니다.',
+                style:
+                TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
+            )
                 : ListView.builder(
-                    shrinkWrap: true, // 추가된 부분
-                    physics: NeverScrollableScrollPhysics(), // 추가된 부분
-                    itemCount: _correctedSentences.length,
-                    itemBuilder: (context, index) {
-                      return ListTile(
-                        leading: Icon(Icons.check),
-                        title: Text(_correctedSentences[index]),
-                      );
-                    },
-                  ),
+              shrinkWrap: true, // 추가된 부분
+              physics: NeverScrollableScrollPhysics(), // 추가된 부분
+              itemCount: _correctedSentences.length,
+              itemBuilder: (context, index) {
+                return ListTile(
+                  leading: Icon(Icons.check),
+                  title: Text(_correctedSentences[index]),
+                );
+              },
+            ),
             // 캘린더 아래 해당 날짜 일기 내용 칸
             // 캘린더 아래 해당 날짜 일기 내용 칸
             Padding(
@@ -126,9 +124,10 @@ class _CalendarScreenState extends State<CalendarScreen> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => DiarySwipeScreen(
-                                    selectedDate: _selectedDate,
-                                  ),
+                                  builder: (context) =>
+                                      DiarySwipeScreen(
+                                        selectedDate: _selectedDate,
+                                      ),
                                 ),
                               );
                             },
@@ -156,26 +155,26 @@ class _CalendarScreenState extends State<CalendarScreen> {
                       return GestureDetector(
                         onTap: () {
                           // 일기 수정 화면으로 이동
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => DiaryModifyScreen(
-                                date: _selectedDate,
-                                content: _correctedSentences[index],
-                                onDelete: (date) {
-                                  // 삭제 콜백 동작 정의
-                                  setState(() {
-                                    _correctedSentences.removeAt(index);
-                                  });
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text('일기가 삭제되었습니다.'),
-                                    ),
-                                  );
-                                },
-                              ),
-                            ),
-                          );
+                          // Navigator.push(
+                          //   context,
+                          //   MaterialPageRoute(
+                          //     builder: (context) => DiaryModifyScreen(
+                          //       date: _selectedDate,
+                          //       content: _correctedSentences[index],
+                          //       onDelete: (date) {
+                          //         // 삭제 콜백 동작 정의
+                          //         setState(() {
+                          //           _correctedSentences.removeAt(index);
+                          //         });
+                          //         ScaffoldMessenger.of(context).showSnackBar(
+                          //           SnackBar(
+                          //             content: Text('일기가 삭제되었습니다.'),
+                          //           ),
+                          //         );
+                          //       },
+                          //     ),
+                          //   ),
+                          // );
                         },
                         child: Container(
                           padding: const EdgeInsets.all(10),
@@ -201,59 +200,36 @@ class _CalendarScreenState extends State<CalendarScreen> {
     );
   }
 
-  Future<void> _fetchCorrectedSentences(DateTime selectedDate) async {
-    final formattedDate =
-        DateFormat('yyyy-MM-dd HH:mm:ss').format(selectedDate);
+  Future<void> _fetchDiaryContent(DateTime selectedDate) async {
+    // 선택된 날짜의 시작과 끝 범위 설정
+    final startOfDay = DateTime(selectedDate.year, selectedDate.month, selectedDate.day);
+    final endOfDay = startOfDay.add(Duration(days: 1));
 
     try {
+      // Firestore 쿼리에서 'date' 필드로 범위 검색
       final querySnapshot = await FirebaseFirestore.instance
           .collection('diary_entries')
-          .where(FieldPath.documentId, isGreaterThanOrEqualTo: formattedDate)
+          .where('date', isGreaterThanOrEqualTo: startOfDay.toIso8601String())
+          .where('date', isLessThan: endOfDay.toIso8601String())
           .get();
 
       if (querySnapshot.docs.isNotEmpty) {
         final doc = querySnapshot.docs.first;
         final analyzedSentences = doc['analyzedSentences'] as List<dynamic>?;
-        if (analyzedSentences != null) {
+
+        if (analyzedSentences != null && analyzedSentences.isNotEmpty) {
+          // analyzedSentences 배열의 첫 번째 corrected 필드를 가져옴
           setState(() {
-            _correctedSentences = analyzedSentences
-                .map((sentence) => sentence['corrected'] as String? ?? 'N/A')
-                .toList();
+            _diaryContent = analyzedSentences[0]['corrected'] as String? ?? '내용 없음';
           });
         } else {
           setState(() {
-            _correctedSentences = [];
+            _diaryContent = '내용 없음';
           });
         }
       } else {
         setState(() {
-          _correctedSentences = [];
-        });
-      }
-    } catch (e) {
-      print('데이터 가져오기 실패: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('데이터를 가져오는 중 오류가 발생했습니다.')),
-      );
-    }
-  }
-
-  Future<void> _fetchDiaryContent(DateTime selectedDate) async {
-    final formattedDate = DateFormat('yyyy-MM-dd').format(selectedDate);
-
-    try {
-      final docSnapshot = await FirebaseFirestore.instance
-          .collection('diary_entries')
-          .doc(formattedDate)
-          .get();
-
-      if (docSnapshot.exists) {
-        setState(() {
-          _diaryContent = docSnapshot['content'] as String?;
-        });
-      } else {
-        setState(() {
-          _diaryContent = null;
+          _diaryContent = '작성된 일기가 없습니다.';
         });
       }
     } catch (e) {
