@@ -141,6 +141,7 @@ class _DiarySwipeScreenState extends State<DiarySwipeScreen> {
           context: context,
           builder: (BuildContext context) {
             return AlertDialog(
+              backgroundColor: const Color(0xFFEEEEEE),
               // title: const Text('뒤로 가기'),
               content: Text.rich(
                 TextSpan(
@@ -158,8 +159,13 @@ class _DiarySwipeScreenState extends State<DiarySwipeScreen> {
                       // '삭제'에 빨간색 적용
                     ),
                     const TextSpan(
-                      text: '됩니다. \n정말로 일기 작성을 취소할까요?',
+                      text: '됩니다.\n',
                       style: TextStyle(fontSize: 17),
+                    ),
+                    const TextSpan(
+                      text: '정말로 일기 작성을 취소할까요?',
+                      style:
+                          TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
                     ),
                   ],
                 ),
@@ -169,13 +175,23 @@ class _DiarySwipeScreenState extends State<DiarySwipeScreen> {
                   onPressed: () {
                     Navigator.of(context).pop(false); // 취소
                   },
-                  child: const Text('취소'),
+                  child: const Text(
+                    '취소',
+                    style: TextStyle(
+                      color: Color.fromRGBO(88, 71, 51, 0.992),
+                    ),
+                  ),
                 ),
                 TextButton(
                   onPressed: () {
                     Navigator.of(context).pop(true); // 확인
                   },
-                  child: const Text('확인'),
+                  child: const Text(
+                    '확인',
+                    style: TextStyle(
+                        color: Color.fromRGBO(88, 71, 51, 0.992),
+                        fontWeight: FontWeight.bold),
+                  ),
                 ),
               ],
 
