@@ -315,6 +315,9 @@ class AnalysisResultScreen extends StatelessWidget {
                 onPressed: () async {
                   Navigator.of(context).pop(); // 다이얼로그 닫기
 
+                  final diaryModel =
+                      Provider.of<DiaryEntryModel>(context, listen: false);
+
                   // Firestore에 저장
                   try {
                     await FirebaseFirestore.instance
@@ -323,6 +326,7 @@ class AnalysisResultScreen extends StatelessWidget {
                         .set({
                       'date': selectedDate.toIso8601String(),
                       'analyzedSentences': correctedText,
+                      'koreanSentences': diaryModel.entry,
                       'vocabulary': selectedWordsWithMeanings, // 단어 및 뜻 저장
                     });
 
@@ -332,8 +336,6 @@ class AnalysisResultScreen extends StatelessWidget {
                     );
 
                     // 저장 후 diaryModel.resetEntry() 호출
-                    final diaryModel =
-                        Provider.of<DiaryEntryModel>(context, listen: false);
                     diaryModel.resetEntry(); // resetEntry 호출
 
                     // 홈 스크린으로 이동

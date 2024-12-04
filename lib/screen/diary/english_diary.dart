@@ -4,8 +4,15 @@ import 'package:url_launcher/url_launcher.dart'; // URL 열기 위한 패키지
 import 'DiarySwipeScreen.dart';
 
 // english_diary: 영어로 일기 작성
+// english_diary: 영어로 일기 작성
 class english_diary extends StatefulWidget {
-  const english_diary({super.key}); // 생성자에서 selectedDate 받기
+  final String KoreanInitialContent; // 전달받은 초기 내용
+  final String EnglishInitialContent; // 전달받은 초기 내용
+
+  const english_diary(
+      {super.key,
+      required this.KoreanInitialContent,
+      required this.EnglishInitialContent});
 
   @override
   _english_diary_state createState() => _english_diary_state();
@@ -18,16 +25,16 @@ class _english_diary_state extends State<english_diary>
 
   @override
   bool get wantKeepAlive => true;
-
   @override
   void initState() {
     super.initState();
-    // 일기 내용 초기화
+    // build가 완료된 후에 diaryModel 상태를 업데이트
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      // 모델의 secondEntry가 변경되었을 때 controller도 업데이트
-      diaryController.text =
-          Provider.of<DiaryEntryModel>(context, listen: false).secondEntry;
+      final diaryModel = Provider.of<DiaryEntryModel>(context, listen: false);
+      diaryModel.updateEntry(widget.KoreanInitialContent); // 초기 값 설정
     });
+    // diaryModel을 초기화하는 대신 초기 값으로 설정
+    diaryController.text = widget.EnglishInitialContent;
   }
 
   @override
@@ -36,9 +43,6 @@ class _english_diary_state extends State<english_diary>
 
     final diaryModel = Provider.of<DiaryEntryModel>(context);
     final selectedDate = Provider.of<DiaryEntryModel>(context).selectedDate;
-
-    // secondEntry 값이 변경될 때마다 controller의 값을 업데이트
-    diaryController.text = diaryModel.secondEntry;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),

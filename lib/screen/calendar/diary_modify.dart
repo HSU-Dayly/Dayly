@@ -247,15 +247,7 @@ class DiaryModifyScreen extends StatelessWidget {
                       child: TextButton(
                         onPressed: () {
                           // 수정 화면으로 이동하면서 기존 내용 전달
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => DiarySwipeScreen(
-                                selectedDate: date,
-                                initialContent: content, // 기존 내용을 전달
-                              ),
-                            ),
-                          );
+                          _fetchDiaryDataAndNavigate(context);
                         },
                         style: TextButton.styleFrom(
                           padding: EdgeInsets.zero,
@@ -305,6 +297,49 @@ class DiaryModifyScreen extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  // Firestore에서 일기 데이터를 가져오고 수정 화면으로 이동하는 함수
+  Future<void> _fetchDiaryDataAndNavigate(BuildContext context) async {
+    try {
+      String formattedDate = DateFormat('yyyy-MM-dd').format(date);
+      String firestoreDate = '$formattedDate 00:00:00.000Z';
+
+      // Firestore에서 일기 데이터 가져오기
+      DocumentSnapshot docSnapshot = await FirebaseFirestore.instance
+          .collection('diary_entries')
+          .doc(firestoreDate)
+          .get();
+
+      if (docSnapshot.exists) {
+        // Firestore에서 데이터 가져오기
+        String koreanContent = docSnapshot['koreanSentences'] ?? '';
+        String englishContent = docSnapshot['analyzedSentences'] ?? '';
+
+        // DiarySwipeScreen으로 전달하며 수정 화면으로 이동
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => DiarySwipeScreen(
+              selectedDate: date,
+              korean: koreanContent,
+              english: englishContent,
+            ),
+          ),
+        );
+      } else {
+        print('일기 데이터를 찾을 수 없습니다 error in diary_modify.dart');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('일기 데이터를 찾을 수 없습니다.')),
+        );
+      }
+    } catch (e) {
+      print('일기 데이터를 가져오는 중 오류가 발생했습니다 error in diary_modify.dart');
+      print("Error fetching diary data: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('일기 데이터를 가져오는 중 오류가 발생했습니다.')),
+      );
+    }
   }
 
   void _showDeleteDialog(BuildContext context) {

@@ -4,7 +4,10 @@ import 'DiarySwipeScreen.dart';
 
 // 일기 작성 화면
 class korean_diary extends StatefulWidget {
-  const korean_diary({super.key});
+  final String initialContent; // 추가된 매개변수
+
+  const korean_diary({super.key, required this.initialContent});
+
   @override
   _korean_diary_state createState() => _korean_diary_state();
 }
@@ -12,6 +15,12 @@ class korean_diary extends StatefulWidget {
 class _korean_diary_state extends State<korean_diary>
     with AutomaticKeepAliveClientMixin {
   final TextEditingController _controller = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _controller.text = widget.initialContent; // 전달된 내용을 텍스트 필드에 초기화
+  }
 
   // 주제 추천 목록
   final List<String> _suggestions = [

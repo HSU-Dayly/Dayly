@@ -184,7 +184,8 @@ class _CalendarScreenState extends State<CalendarScreen> {
                           MaterialPageRoute(
                             builder: (context) => DiarySwipeScreen(
                               selectedDate: _selectedDate,
-                              initialContent: "", // 초기 내용은 비어있음
+                              korean: '', // 일기를 새로 작성하는 경우, 빈 문자열
+                              english: '', // 일기를 새로 작성하는 경우, 빈 문자열
                             ),
                           ),
                         );

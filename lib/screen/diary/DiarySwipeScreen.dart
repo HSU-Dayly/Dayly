@@ -97,13 +97,15 @@ class AnalysisData {
 // DiarySwipeScreen: 메인 화면
 class DiarySwipeScreen extends StatefulWidget {
   final DateTime selectedDate;
-  final String initialContent; // 초기 내용 파라미터 추가
+  final String korean; // 초기 내용 파라미터 추가
+  final String english; // 초기 내용 파라미터 추가
 
   // 생성자에서 selectedDate와 initialContent 둘 다 받음
   const DiarySwipeScreen({
     super.key,
     required this.selectedDate,
-    required this.initialContent, // 초기 내용 추가
+    required this.korean, // 초기 내용 추가
+    required this.english, // 초기 내용 추가
   });
 
   @override
@@ -117,35 +119,13 @@ class _DiarySwipeScreenState extends State<DiarySwipeScreen> {
   int _currentPage = 0;
 
   @override
-  @override
   void initState() {
     super.initState();
-
-    // 데이터를 불러오는 함수
-    loadDiaryData();
-
     // Provider로 selectedDate 설정
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<DiaryEntryModel>(context, listen: false)
           .updateSelectedDate(widget.selectedDate);
     });
-  }
-
-  Future<void> loadDiaryData() async {
-    // 예시: Firestore에서 일기 데이터를 불러옴
-    final diaryData = await FirebaseFirestore.instance
-        .collection('diaries')
-        .doc(widget.selectedDate.toIso8601String())
-        .get();
-
-    if (diaryData.exists) {
-      // 불러온 데이터를 TextEditingController에 설정
-      String loadedContent = diaryData['content'] ?? ''; // 내용이 없다면 빈 문자열
-      _textController.text = loadedContent;
-
-      // 필요하다면 모델에 분석된 데이터 등을 설정
-      // 예: diaryModel.setAnalysisResult(loadedAnalysisData);
-    }
   }
 
   void _onPageChanged(int page) {
@@ -167,10 +147,7 @@ class _DiarySwipeScreenState extends State<DiarySwipeScreen> {
                   children: [
                     const TextSpan(
                       text: '작성한 내용이 모두 ',
-                      style: TextStyle(
-                          color: Colors.black,
-                          // fontWeight: FontWeight.bold,
-                          fontSize: 17),
+                      style: TextStyle(fontSize: 17),
                     ),
                     TextSpan(
                       text: '삭제',
@@ -182,10 +159,7 @@ class _DiarySwipeScreenState extends State<DiarySwipeScreen> {
                     ),
                     const TextSpan(
                       text: '됩니다. \n정말로 일기 작성을 취소할까요?',
-                      style: TextStyle(
-                          color: Colors.black,
-                          // fontWeight: FontWeight.bold,
-                          fontSize: 17),
+                      style: TextStyle(fontSize: 17),
                     ),
                   ],
                 ),
@@ -195,19 +169,13 @@ class _DiarySwipeScreenState extends State<DiarySwipeScreen> {
                   onPressed: () {
                     Navigator.of(context).pop(false); // 취소
                   },
-                  child: const Text(
-                    '취소',
-                    style: TextStyle(fontSize: 18, color: Colors.black),
-                  ),
+                  child: const Text('취소'),
                 ),
                 TextButton(
                   onPressed: () {
                     Navigator.of(context).pop(true); // 확인
                   },
-                  child: const Text(
-                    '확인',
-                    style: TextStyle(fontSize: 18, color: Colors.black),
-                  ),
+                  child: const Text('확인'),
                 ),
               ],
 
@@ -221,7 +189,8 @@ class _DiarySwipeScreenState extends State<DiarySwipeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final diaryModel = Provider.of<DiaryEntryModel>(context); // diaryModel을 가져옴
+    final diaryModel = Provider.of<DiaryEntryModel>(context);
+
     final isAnalysisComplete = diaryModel.isAnalysisComplete;
 
     return GestureDetector(
@@ -257,42 +226,26 @@ class _DiarySwipeScreenState extends State<DiarySwipeScreen> {
               body: Column(
                 crossAxisAlignment: CrossAxisAlignment.start, // 왼쪽 정렬
                 children: [
-                  // Padding(
-                  //   padding: const EdgeInsets.all(16.0), // 간격 추가
-                  //   child: Column(
-                  //     crossAxisAlignment:
-                  //         CrossAxisAlignment.start, // 내부 텍스트 왼쪽 정렬
-                  //     children: [
-                  //       Text(
-                  //         _formatDateToEnglish(widget.selectedDate), // 날짜 출력
-                  //         style: const TextStyle(
-                  //           fontSize: 22,
-                  //           fontWeight: FontWeight.bold,
-                  //         ),
-                  //       ),
-                  //     ],
-                  //   ),
-                  // ),
-                  // DiarySwipeScreen
                   Expanded(
                     child: PageView(
                       controller: _pageController,
                       onPageChanged: _onPageChanged,
                       children: [
-                        korean_diary(), // 날짜를 korean_diary에 전달
-                        english_diary(),
+                        korean_diary(initialContent: widget.korean), // 값 전달
+                        english_diary(
+                          KoreanInitialContent: widget.korean,
+                          EnglishInitialContent: widget.english,
+                        ),
                         if (diaryModel.secondEntry.isNotEmpty)
                           analysis_diary(pageController: _pageController),
                         if (isAnalysisComplete &&
                             diaryModel.secondEntry.isNotEmpty)
                           AnalysisResultScreen(
-                            analysisData:
-                                diaryModel.analyzedAnalysisData, // 객체 전달
+                            analysisData: diaryModel.analyzedAnalysisData,
                           ),
                       ],
                     ),
                   ),
-
                   Padding(
                     padding: const EdgeInsets.all(20.0),
                     child: Row(
