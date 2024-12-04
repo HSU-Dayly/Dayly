@@ -202,9 +202,10 @@ class AnalysisResultScreen extends StatelessWidget {
         return StatefulBuilder(
           builder: (BuildContext context, StateSetter setState) {
             return AlertDialog(
+              backgroundColor: const Color(0xFFEEEEEE),
               title: const Text(
-                '단어장에 추가하고 싶은 단어를 골라주세요',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w400),
+                '단어장에 추가할 단어를 선택하세요',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               content: SingleChildScrollView(
                 child: Column(
@@ -259,7 +260,10 @@ class AnalysisResultScreen extends StatelessWidget {
                   onPressed: () {
                     Navigator.of(context).pop(); // 다이얼로그 닫기
                   },
-                  child: const Text('취소'),
+                  child: const Text('건너뛰기',
+                      style: TextStyle(
+                        color: Color.fromRGBO(88, 71, 51, 0.992),
+                      )),
                 ),
                 TextButton(
                   onPressed: () {
@@ -271,7 +275,12 @@ class AnalysisResultScreen extends StatelessWidget {
                       );
                     }
                   },
-                  child: const Text('저장'),
+                  child: const Text(
+                    '저장',
+                    style: TextStyle(
+                        color: Color.fromRGBO(88, 71, 51, 0.992),
+                        fontWeight: FontWeight.bold),
+                  ),
                 ),
               ],
             );
@@ -286,83 +295,105 @@ class AnalysisResultScreen extends StatelessWidget {
   void _showSaveDialog(BuildContext context, List<String> vocabulary,
       List<List<String>> meanings) async {
     FocusScope.of(context).requestFocus(FocusNode());
-    final selectedWordsWithMeanings =
-        await _showVocabularyDialog(context, vocabulary, meanings);
-
-    if (selectedWordsWithMeanings.isNotEmpty) {
-      final selectedDate =
-          Provider.of<DiaryEntryModel>(context, listen: false).selectedDate;
-
-      // 'corrected' 필드만 추출해서 하나의 문자열로 합치기 (올바르게 작성된 일기)
-      final analyzedSentences = analysisData.sentences;
-      final correctedText = analyzedSentences
-          .map((sentence) =>
-              sentence['corrected'] ?? '') // 'corrected' 값 추출 (없으면 빈 문자열)
-          .join(' '); // 공백으로 구분하여 하나의 문자열로 결합
-
-      // final sentences = analysisData.sentences;
-      //여기
-      // print('파베에 저장되는 $sentences');
-
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: const Text('저장'),
-            content: const Text('저장하시겠습니까?'),
-            actions: [
-              TextButton(
-                onPressed: () async {
-                  Navigator.of(context).pop(); // 다이얼로그 닫기
-
-                  final diaryModel =
-                      Provider.of<DiaryEntryModel>(context, listen: false);
-
-                  // Firestore에 저장
-                  try {
-                    await FirebaseFirestore.instance
-                        .collection('diary_entries')
-                        .doc(selectedDate.toString())
-                        .set({
-                      'date': selectedDate.toIso8601String(),
-                      'analyzedSentences': correctedText,
-                      'koreanSentences': diaryModel.entry,
-                      'vocabulary': selectedWordsWithMeanings, // 단어 및 뜻 저장
-                    });
-
-                    // 성공 메시지
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('저장되었습니다!')),
-                    );
-
-                    // 저장 후 diaryModel.resetEntry() 호출
-                    diaryModel.resetEntry(); // resetEntry 호출
-
-                    // 홈 스크린으로 이동
-                    Navigator.pushAndRemoveUntil(
-                      context,
-                      MaterialPageRoute(builder: (context) => MainScreens()),
-                      (Route<dynamic> route) => false, // 이전 화면을 스택에서 모두 제거
-                    );
-                  } catch (e) {
-                    // 실패 메시지
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('저장 실패: $e')),
-                    );
-                  }
-                },
-                child: const Text('확인'),
-              ),
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop(); // 다이얼로그 닫기
-                },
-                child: const Text('취소'),
-              ),
-            ],
-          );
-        },
-      );
+    final selectedDate =
+        Provider.of<DiaryEntryModel>(context, listen: false).selectedDate;
+    List<Map<String, dynamic>> selectedWordsWithMeanings = [];
+    if (vocabulary.isNotEmpty) {
+      selectedWordsWithMeanings =
+          await _showVocabularyDialog(context, vocabulary, meanings);
     }
+    // final selectedWordsWithMeanings =
+    //     await _showVocabularyDialog(context, vocabulary, meanings);
+
+    // if (selectedWordsWithMeanings.isNotEmpty) {
+
+    // 'corrected' 필드만 추출해서 하나의 문자열로 합치기 (올바르게 작성된 일기)
+    final analyzedSentences = analysisData.sentences;
+    final correctedText = analyzedSentences
+        .map((sentence) =>
+            sentence['corrected'] ?? '') // 'corrected' 값 추출 (없으면 빈 문자열)
+        .join(' '); // 공백으로 구분하여 하나의 문자열로 결합
+
+    // final sentences = analysisData.sentences;
+    //여기
+    // print('파베에 저장되는 $sentences');
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: const Color(0xFFEEEEEE),
+          title: const Text(
+            '일기 저장',
+            style: TextStyle(
+                color: Color.fromRGBO(88, 71, 51, 0.992),
+                fontWeight: FontWeight.bold),
+          ),
+          content: const Text('일기를 저장하시겠습니까?',
+              style: TextStyle(
+                fontSize: 17,
+                color: Color.fromRGBO(88, 71, 51, 0.992),
+              )),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // 다이얼로그 닫기
+              },
+              child: const Text('취소',
+                  style: TextStyle(
+                    color: Color.fromRGBO(88, 71, 51, 0.992),
+                  )),
+            ),
+            TextButton(
+              onPressed: () async {
+                Navigator.of(context).pop(); // 다이얼로그 닫기
+
+                final diaryModel =
+                    Provider.of<DiaryEntryModel>(context, listen: false);
+
+                // Firestore에 저장
+                try {
+                  await FirebaseFirestore.instance
+                      .collection('diary_entries')
+                      .doc(selectedDate.toString())
+                      .set({
+                    'date': selectedDate.toIso8601String(),
+                    'analyzedSentences': correctedText,
+                    'koreanSentences': diaryModel.entry,
+                    'vocabulary': vocabulary.isNotEmpty
+                        ? selectedWordsWithMeanings // vocabulary가 있을 경우
+                        : [], // 없으면 빈 리스트 저장
+                  });
+
+                  // 성공 메시지
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('저장되었습니다!')),
+                  );
+
+                  // 저장 후 diaryModel.resetEntry() 호출
+                  diaryModel.resetEntry(); // resetEntry 호출
+
+                  // 홈 스크린으로 이동
+                  Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(builder: (context) => MainScreens()),
+                    (Route<dynamic> route) => false, // 이전 화면을 스택에서 모두 제거
+                  );
+                } catch (e) {
+                  // 실패 메시지
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('저장 실패: $e')),
+                  );
+                }
+              },
+              child: const Text('확인',
+                  style: TextStyle(
+                      color: Color.fromRGBO(88, 71, 51, 0.992),
+                      fontWeight: FontWeight.bold)),
+            ),
+          ],
+        );
+      },
+    );
   }
 }
