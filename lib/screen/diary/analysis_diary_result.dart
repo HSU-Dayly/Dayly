@@ -292,7 +292,17 @@ class AnalysisResultScreen extends StatelessWidget {
     if (selectedWordsWithMeanings.isNotEmpty) {
       final selectedDate =
           Provider.of<DiaryEntryModel>(context, listen: false).selectedDate;
-      final sentences = analysisData.sentences;
+
+      // 'corrected' 필드만 추출해서 하나의 문자열로 합치기 (올바르게 작성된 일기)
+      final analyzedSentences = analysisData.sentences;
+      final correctedText = analyzedSentences
+          .map((sentence) =>
+              sentence['corrected'] ?? '') // 'corrected' 값 추출 (없으면 빈 문자열)
+          .join(' '); // 공백으로 구분하여 하나의 문자열로 결합
+
+      // final sentences = analysisData.sentences;
+      //여기
+      // print('파베에 저장되는 $sentences');
 
       showDialog(
         context: context,
@@ -312,7 +322,7 @@ class AnalysisResultScreen extends StatelessWidget {
                         .doc(selectedDate.toString())
                         .set({
                       'date': selectedDate.toIso8601String(),
-                      'analyzedSentences': sentences,
+                      'analyzedSentences': correctedText,
                       'vocabulary': selectedWordsWithMeanings, // 단어 및 뜻 저장
                     });
 

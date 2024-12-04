@@ -7,6 +7,8 @@ import 'package:intl/intl.dart';
 import 'diary_list.dart'; // 리스트 화면을 불러오기 위해 추가
 
 class CalendarScreen extends StatefulWidget {
+  const CalendarScreen({super.key});
+
   @override
   _CalendarScreenState createState() => _CalendarScreenState();
 }
@@ -187,6 +189,9 @@ class _CalendarScreenState extends State<CalendarScreen> {
                           ),
                         );
                       } else {
+                        print('전 : $_diaryEvents');
+                        print('전 날짜 : $_selectedDate');
+
                         // DiaryModifyScreen으로 이동
                         Navigator.push(
                           context,
@@ -195,19 +200,29 @@ class _CalendarScreenState extends State<CalendarScreen> {
                               date: _selectedDate,
                               content: _diaryContent!,
                               onDelete: (date) {
-                                // 삭제 콜백 동작 정의
+                                // 날짜의 시간 정보를 제거하고 삭제
+                                DateTime normalizedSelectedDate = DateTime(
+                                    _selectedDate.year,
+                                    _selectedDate.month,
+                                    _selectedDate.day);
+
                                 setState(() {
                                   _diaryContent = null;
+                                  _diaryEvents.remove(
+                                      normalizedSelectedDate); // 시간 정보 제거 후 날짜 삭제
                                 });
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text('일기가 삭제되었습니다.'),
-                                  ),
-                                );
+
+                                // 캘린더 화면으로 돌아오면 다시 DiaryEvents를 업데이트
+                                _fetchDiaryEvents(); // 강제로 캘린더 업데이트
+                                print('후 날짜 : $_selectedDate');
+                                print('후 : $_diaryEvents');
                               },
                             ),
                           ),
-                        );
+                        ).then((_) {
+                          // 삭제 후 돌아왔을 때 캘린더 데이터를 다시 가져옴
+                          _fetchDiaryEvents();
+                        });
                       }
                     },
                     child: Text(
@@ -242,18 +257,10 @@ class _CalendarScreenState extends State<CalendarScreen> {
 
       if (querySnapshot.docs.isNotEmpty) {
         final doc = querySnapshot.docs.first;
-        final analyzedSentences = doc['analyzedSentences'] as List<dynamic>?;
-        if (analyzedSentences != null) {
-          setState(() {
-            _correctedSentences = analyzedSentences
-                .map((sentence) => sentence['corrected'] as String? ?? 'N/A')
-                .toList();
-          });
-        } else {
-          setState(() {
-            _correctedSentences = [];
-          });
-        }
+        final analyzedSentences = doc['analyzedSentences'] as String?;
+        setState(() {
+          _correctedSentences = [analyzedSentences ?? 'N/A'];
+        });
       } else {
         setState(() {
           _correctedSentences = [];
@@ -275,11 +282,11 @@ class _CalendarScreenState extends State<CalendarScreen> {
 
       for (var doc in querySnapshot.docs) {
         final date = DateTime.parse(doc.id);
-        final analyzedSentences = doc['analyzedSentences'] as List<dynamic>?;
-
+        final analyzedSentences = doc['analyzedSentences'] as String?;
         if (analyzedSentences != null && analyzedSentences.isNotEmpty) {
-          events[DateTime(date.year, date.month, date.day)] =
-              analyzedSentences.map((e) => e['corrected'] as String).toList();
+          events[DateTime(date.year, date.month, date.day)] = [
+            analyzedSentences
+          ];
         }
       }
 
@@ -292,13 +299,11 @@ class _CalendarScreenState extends State<CalendarScreen> {
   }
 
   Future<void> _fetchDiaryContent(DateTime selectedDate) async {
-    // 선택된 날짜의 시작과 끝 범위 설정
     final startOfDay =
         DateTime(selectedDate.year, selectedDate.month, selectedDate.day);
     final endOfDay = startOfDay.add(Duration(days: 1));
 
     try {
-      // Firestore 쿼리에서 'date' 필드로 범위 검색
       final querySnapshot = await FirebaseFirestore.instance
           .collection('diary_entries')
           .where('date', isGreaterThanOrEqualTo: startOfDay.toIso8601String())
@@ -307,19 +312,10 @@ class _CalendarScreenState extends State<CalendarScreen> {
 
       if (querySnapshot.docs.isNotEmpty) {
         final doc = querySnapshot.docs.first;
-        final analyzedSentences = doc['analyzedSentences'] as List<dynamic>?;
-
-        if (analyzedSentences != null && analyzedSentences.isNotEmpty) {
-          // analyzedSentences 배열의 첫 번째 corrected 필드를 가져옴
-          setState(() {
-            _diaryContent =
-                analyzedSentences[0]['corrected'] as String? ?? '내용 없음';
-          });
-        } else {
-          setState(() {
-            _diaryContent = '내용 없음';
-          });
-        }
+        final analyzedSentences = doc['analyzedSentences'] as String?;
+        setState(() {
+          _diaryContent = analyzedSentences ?? '내용 없음';
+        });
       } else {
         setState(() {
           _diaryContent = '일기 작성하러 가기';
