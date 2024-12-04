@@ -18,7 +18,6 @@ class _CalendarScreenState extends State<CalendarScreen> {
   String? _diaryContent;
   Map<DateTime, List<String>> _diaryEvents = {}; // 날짜별 일기 이벤트 저장
 
-
   @override
   void initState() {
     super.initState();
@@ -61,29 +60,29 @@ class _CalendarScreenState extends State<CalendarScreen> {
           children: [
             TableCalendar(
               headerStyle: const HeaderStyle(
-              leftChevronIcon: Icon(
-                Icons.arrow_left,
-                size: 30,
+                leftChevronIcon: Icon(
+                  Icons.arrow_left,
+                  size: 30,
+                ),
+                rightChevronIcon: Icon(
+                  Icons.arrow_right,
+                  size: 30,
+                ),
+                formatButtonVisible: false,
+                titleCentered: true,
+                titleTextStyle: TextStyle(
+                  fontSize: 20, // 상단 연도와 월 글씨 크기 설정
+                ),
               ),
-              rightChevronIcon: Icon(
-                Icons.arrow_right,
-                size: 30,
+              daysOfWeekStyle: const DaysOfWeekStyle(
+                weekdayStyle: TextStyle(
+                  fontWeight: FontWeight.bold, // 요일 텍스트 볼드 처리
+                ),
+                weekendStyle: TextStyle(
+                  fontWeight: FontWeight.bold, // 주말 요일 텍스트 볼드 처리
+                ),
               ),
-              formatButtonVisible: false,
-              titleCentered: true,
-              titleTextStyle: TextStyle(
-                fontSize: 20, // 상단 연도와 월 글씨 크기 설정
-              ),
-            ),
-            daysOfWeekStyle: const DaysOfWeekStyle(
-              weekdayStyle: TextStyle(
-                fontWeight: FontWeight.bold, // 요일 텍스트 볼드 처리
-              ),
-              weekendStyle: TextStyle(
-                fontWeight: FontWeight.bold, // 주말 요일 텍스트 볼드 처리
-              ),
-            ),
-            locale: 'ko_KR', // 한국어 설정
+              locale: 'ko_KR', // 한국어 설정
               firstDay: DateTime(2000),
               lastDay: DateTime(2100),
               calendarFormat: CalendarFormat.month,
@@ -99,35 +98,35 @@ class _CalendarScreenState extends State<CalendarScreen> {
               },
               calendarStyle: CalendarStyle(
                 defaultTextStyle: const TextStyle(
-                color: Colors.brown,
-              ),
-              weekendTextStyle: const TextStyle(
-                color: Colors.brown,
-              ),
-              selectedTextStyle: const TextStyle(
-                color: Colors.brown, // 선택된 날짜 글씨색
-              ),
-              todayTextStyle: const TextStyle(
-                color: Colors.black,
-              ),
-              selectedDecoration: const BoxDecoration(
-                color: Color.fromRGBO(105, 62, 29, 0.1), // 선택된 날짜 배경색
-                shape: BoxShape.circle,
-              ),
-              todayDecoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(
-                  color: Colors.black38,
-                  width: 2,
+                  color: Colors.brown,
                 ),
-                color: Colors.transparent,
+                weekendTextStyle: const TextStyle(
+                  color: Colors.brown,
+                ),
+                selectedTextStyle: const TextStyle(
+                  color: Colors.brown, // 선택된 날짜 글씨색
+                ),
+                todayTextStyle: const TextStyle(
+                  color: Colors.black,
+                ),
+                selectedDecoration: const BoxDecoration(
+                  color: Color.fromRGBO(105, 62, 29, 0.1), // 선택된 날짜 배경색
+                  shape: BoxShape.circle,
+                ),
+                todayDecoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: Colors.black38,
+                    width: 2,
+                  ),
+                  color: Colors.transparent,
+                ),
               ),
-            ),
 
-            eventLoader: (day) {
+              eventLoader: (day) {
                 final normalizedDay = DateTime(day.year, day.month, day.day);
                 return _diaryEvents[normalizedDay] ?? [];
-            },
+              },
               calendarBuilders: CalendarBuilders(
                 markerBuilder: (context, date, events) {
                   if (events.isNotEmpty) {
@@ -149,38 +148,41 @@ class _CalendarScreenState extends State<CalendarScreen> {
             ),
             const SizedBox(height: 10),
             const Divider(
-            color: Colors.grey,
-            thickness: 0.5,
-            height: 20,
-            indent: 20,
-            endIndent: 20,
-          ),
+              color: Colors.grey,
+              thickness: 0.5,
+              height: 20,
+              indent: 20,
+              endIndent: 20,
+            ),
             // 캘린더 아래 해당 날짜 일기 내용 칸
             Padding(
-               padding: const EdgeInsets.symmetric(vertical: 15.0, horizontal: 20.0),
+              padding:
+                  const EdgeInsets.symmetric(vertical: 15.0, horizontal: 20.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Align(
-        alignment: Alignment.centerLeft, // 텍스트를 왼쪽에 정렬
-        child: Text(
-          DateFormat('MMM d, EEEE').format(_selectedDate),
-          style: const TextStyle(
-            fontSize: 20,
-            color: Colors.black,
-          ),
-        ),
-      ),
+                    alignment: Alignment.centerLeft, // 텍스트를 왼쪽에 정렬
+                    child: Text(
+                      DateFormat('MMM d, EEEE').format(_selectedDate),
+                      style: const TextStyle(
+                        fontSize: 20,
+                        color: Colors.black,
+                      ),
+                    ),
+                  ),
                   const SizedBox(height: 10),
                   GestureDetector(
                     onTap: () {
-                      if (_diaryContent == null || _diaryContent == "일기 작성하러 가기") {
+                      if (_diaryContent == null ||
+                          _diaryContent == "일기 작성하러 가기") {
                         // DiarySwipeScreen으로 이동
                         Navigator.push(
                           context,
                           MaterialPageRoute(
                             builder: (context) => DiarySwipeScreen(
                               selectedDate: _selectedDate,
+                              initialContent: "", // 초기 내용은 비어있음
                             ),
                           ),
                         );
@@ -227,7 +229,8 @@ class _CalendarScreenState extends State<CalendarScreen> {
       ),
     );
   }
-Future<void> _fetchCorrectedSentences(DateTime selectedDate) async {
+
+  Future<void> _fetchCorrectedSentences(DateTime selectedDate) async {
     final formattedDate =
         DateFormat('yyyy-MM-dd HH:mm:ss').format(selectedDate);
 
@@ -266,7 +269,8 @@ Future<void> _fetchCorrectedSentences(DateTime selectedDate) async {
 
   Future<void> _fetchDiaryEvents() async {
     try {
-      final querySnapshot = await FirebaseFirestore.instance.collection('diary_entries').get();
+      final querySnapshot =
+          await FirebaseFirestore.instance.collection('diary_entries').get();
       final Map<DateTime, List<String>> events = {};
 
       for (var doc in querySnapshot.docs) {
@@ -289,7 +293,8 @@ Future<void> _fetchCorrectedSentences(DateTime selectedDate) async {
 
   Future<void> _fetchDiaryContent(DateTime selectedDate) async {
     // 선택된 날짜의 시작과 끝 범위 설정
-    final startOfDay = DateTime(selectedDate.year, selectedDate.month, selectedDate.day);
+    final startOfDay =
+        DateTime(selectedDate.year, selectedDate.month, selectedDate.day);
     final endOfDay = startOfDay.add(Duration(days: 1));
 
     try {
@@ -307,7 +312,8 @@ Future<void> _fetchCorrectedSentences(DateTime selectedDate) async {
         if (analyzedSentences != null && analyzedSentences.isNotEmpty) {
           // analyzedSentences 배열의 첫 번째 corrected 필드를 가져옴
           setState(() {
-            _diaryContent = analyzedSentences[0]['corrected'] as String? ?? '내용 없음';
+            _diaryContent =
+                analyzedSentences[0]['corrected'] as String? ?? '내용 없음';
           });
         } else {
           setState(() {

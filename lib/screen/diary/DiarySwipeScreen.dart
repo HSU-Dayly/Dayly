@@ -98,8 +98,14 @@ class AnalysisData {
 // DiarySwipeScreen: 메인 화면
 class DiarySwipeScreen extends StatefulWidget {
   final DateTime selectedDate;
+  final String initialContent; // 초기 내용 파라미터 추가
 
-  const DiarySwipeScreen({super.key, required this.selectedDate});
+  // 생성자에서 selectedDate와 initialContent 둘 다 받음
+  const DiarySwipeScreen({
+    super.key,
+    required this.selectedDate,
+    required this.initialContent, // 초기 내용 추가
+  });
 
   @override
   _DiarySwipeScreenState createState() => _DiarySwipeScreenState();
@@ -107,11 +113,15 @@ class DiarySwipeScreen extends StatefulWidget {
 
 class _DiarySwipeScreenState extends State<DiarySwipeScreen> {
   final PageController _pageController = PageController();
+  final TextEditingController _textController =
+      TextEditingController(); // 내용 표시용
   int _currentPage = 0;
 
   @override
   void initState() {
     super.initState();
+    // 전달된 initialContent 값을 TextEditingController에 설정
+    _textController.text = widget.initialContent;
     // Provider로 selectedDate 설정
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<DiaryEntryModel>(context, listen: false)
