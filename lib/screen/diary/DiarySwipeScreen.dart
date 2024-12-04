@@ -168,13 +168,6 @@ class _DiarySwipeScreenState extends State<DiarySwipeScreen> {
                           // fontWeight: FontWeight.bold,
                           fontSize: 17),
                     ),
-                    const TextSpan(
-                      text: '됩니다. \n정말로 일기 작성을 취소할까요?',
-                      style: TextStyle(
-                          color: Colors.black,
-                          // fontWeight: FontWeight.bold,
-                          fontSize: 17),
-                    ),
                   ],
                 ),
               ),
