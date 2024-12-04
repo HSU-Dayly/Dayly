@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class UsernameScreen extends StatefulWidget {
+  const UsernameScreen({super.key});
+
   @override
   _UsernameScreenState createState() => _UsernameScreenState();
 }
@@ -50,6 +52,7 @@ class _UsernameScreenState extends State<UsernameScreen> {
       context: context,
       builder: (context) {
         return AlertDialog(
+          backgroundColor: const Color(0xFFEEEEEE),
           title: Text('${_controller.text}님'),
           content: const Text(
             '위 이름으로 계속 진행하시겠습니까?',

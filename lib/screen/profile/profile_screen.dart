@@ -11,6 +11,8 @@ import '../../local_notifications.dart';
 import 'components/dialogs.dart';
 
 class ProfileScreen extends StatefulWidget {
+  const ProfileScreen({super.key});
+
   @override
   _ProfileScreenState createState() => _ProfileScreenState();
 }
@@ -92,10 +94,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Future<void> _fetchDiaryStats() async {
     final now = DateTime.now();
     final startOfMonth = DateTime(now.year, now.month, 1);
-    final endOfMonth = DateTime(now.year, now.month + 1, 1).subtract(Duration(seconds: 1));
+    final endOfMonth =
+        DateTime(now.year, now.month + 1, 1).subtract(Duration(seconds: 1));
 
     try {
-      final diaryEntries = await FirebaseFirestore.instance.collection('diary_entries').get();
+      final diaryEntries =
+          await FirebaseFirestore.instance.collection('diary_entries').get();
       final monthlyEntries = await FirebaseFirestore.instance
           .collection('diary_entries')
           .where('date', isGreaterThanOrEqualTo: startOfMonth.toIso8601String())
@@ -139,9 +143,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final alarmTime = DateTime(now.year, now.month, now.day, hour, minute);
 
     // 현재 시간보다 이전 시간인 경우 다음 날로 예약
-    final adjustedAlarmTime = alarmTime.isBefore(now)
-        ? alarmTime.add(Duration(days: 1))
-        : alarmTime;
+    final adjustedAlarmTime =
+        alarmTime.isBefore(now) ? alarmTime.add(Duration(days: 1)) : alarmTime;
 
     LocalNotifications.scheduleNotification(
       title: '알림',
@@ -152,35 +155,46 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   void _confirmLogout() async {
-  final shouldLogout = await showDialog<bool>(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        title: Text('정말 로그아웃하시겠습니까?\n기존 정보가 모두 초기화됩니다.', style: TextStyle(fontSize: 17),),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop(false); // 다이얼로그 닫고 false 반환
-            },
-            child: Text('취소'),
+    final shouldLogout = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: const Color(0xFFEEEEEE),
+          title: Text(
+            '정말 로그아웃하시겠습니까?\n기존 정보가 모두 초기화됩니다.',
+            style: TextStyle(fontSize: 17),
           ),
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop(true); // 다이얼로그 닫고 true 반환
-            },
-            child: Text('확인'),
-          ),
-        ],
-      );
-    },
-  );
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(false); // 다이얼로그 닫고 false 반환
+              },
+              child: Text(
+                '취소',
+                style: TextStyle(color: Color.fromRGBO(88, 71, 51, 0.992)),
+              ),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(true); // 다이얼로그 닫고 true 반환
+              },
+              child: Text(
+                '확인',
+                style: TextStyle(
+                    color: Color.fromRGBO(88, 71, 51, 0.992),
+                    fontWeight: FontWeight.bold),
+              ),
+            ),
+          ],
+        );
+      },
+    );
 
-  // shouldLogout이 true인 경우에만 _logout 호출
-  if (shouldLogout == true) {
-    _logout();
+    // shouldLogout이 true인 경우에만 _logout 호출
+    if (shouldLogout == true) {
+      _logout();
+    }
   }
-}
-
 
   void _showGoalDialog() async {
     final int? goal = await showDialog<int>(
@@ -204,7 +218,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
     await prefs.clear();
     await FirebaseAuth.instance.signOut();
 
-    Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => LoginScreen()), (route) => false);
+    Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (context) => LoginScreen()),
+        (route) => false);
   }
 
   @override
@@ -228,15 +245,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
           elevation: 0,
           actions: [
             Padding(
-                padding: const EdgeInsets.only(right: 20.0),
-                child: IconButton(
-  onPressed: _confirmLogout, // _logout에서 _confirmLogout으로 변경
-  icon: Icon(
-    Icons.logout,
-    size: 28,
-    color: Color(0xFF776767),
-  ),
-),
+              padding: const EdgeInsets.only(right: 20.0),
+              child: IconButton(
+                onPressed: _confirmLogout, // _logout에서 _confirmLogout으로 변경
+                icon: Icon(
+                  Icons.logout,
+                  size: 28,
+                  color: Color(0xFF776767),
+                ),
+              ),
             ),
           ],
         ),
@@ -250,7 +267,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               Row(
                 children: [
                   Text(
-                    '$USER_NAME',
+                    USER_NAME,
                     style: TextStyle(fontSize: 35, fontWeight: FontWeight.bold),
                   ),
                   SizedBox(
@@ -340,7 +357,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
               Center(
                 child: Container(
                   width: double.infinity,
-                  padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0),
+                  padding:
+                      EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(8),
@@ -397,7 +415,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   )),
                               Text('$goalDiary',
                                   style: TextStyle(
-                                      fontSize: 30, fontWeight: FontWeight.bold)),
+                                      fontSize: 30,
+                                      fontWeight: FontWeight.bold)),
                             ],
                           ),
                           Container(
