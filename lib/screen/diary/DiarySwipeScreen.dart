@@ -564,7 +564,7 @@ class _OtherScreenState extends State<OtherScreen>
                         ),
                         child: Text(
                           diaryModel.entry,
-                          style: const TextStyle(fontSize: 18),
+                          style: const TextStyle(fontSize: 15),
                         ),
                       ),
                     ],
