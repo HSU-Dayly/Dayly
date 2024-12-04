@@ -27,11 +27,23 @@ class AnalysisResultScreen extends StatelessWidget {
     final analyzedSentences = analysisData.sentences;
     final analyzedVocas = analysisData.vocabulary;
     final wordList = analyzedVocas.map((vocab) => vocab.word).toList();
+    final wordMeaningsList =
+        analyzedVocas.map((meanings) => meanings.meanings).toList();
 
     // analyzedSentences 출력
     print('Analyzed Sentences:');
     for (var sentence in analyzedSentences) {
       print(sentence);
+    }
+
+    print('Analyzed word:');
+    for (var word in wordList) {
+      print(word);
+    }
+
+    print('Analyzed meanings:');
+    for (var wordMeanings in wordMeaningsList) {
+      print(wordMeanings);
     }
 
     return Scaffold(
@@ -56,22 +68,20 @@ class AnalysisResultScreen extends StatelessWidget {
                 const Spacer(), // 두 텍스트 사이의 여백을 추가
                 GestureDetector(
                   onTap: () {
-                    // '저장' 클릭 시 실행될 함수
                     print('저장 버튼이 클릭되었습니다');
-                    _showSaveDialog(context, wordList);
+                    _showSaveDialog(context, wordList,
+                        wordMeaningsList); // wordMeaningsList 추가
                   },
                   child: Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 8.0), // 텍스트에 여백을 줘서 노란색 배경에 여유를 추가
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
                     decoration: BoxDecoration(
                       color: Color(0xFFFFEA00).withOpacity(0.34),
-                      borderRadius: BorderRadius.circular(5.0), // 버튼 모서리를 둥글게
+                      borderRadius: BorderRadius.circular(5.0),
                     ),
-                    child: Text(
+                    child: const Text(
                       '저장',
                       style: TextStyle(
                         fontSize: 20,
-                        // fontWeight: FontWeight.bold,
                       ),
                     ),
                   ),
@@ -177,12 +187,105 @@ class AnalysisResultScreen extends StatelessWidget {
   }
 
   // vocabulary를 List<String>으로 받음
-  void _showSaveDialog(BuildContext context, List<String> vocabulary) async {
-    // 선택된 단어를 반환받음
+  Future<List<Map<String, dynamic>>> _showVocabularyDialog(BuildContext context,
+      List<String> vocabulary, List<List<String>> meanings) async {
     FocusScope.of(context).requestFocus(FocusNode());
-    final selectedWords = await _showVocabularyDialog(context, vocabulary);
+    List<Map<String, dynamic>> selectedWordsWithMeanings = [];
 
-    if (selectedWords.isNotEmpty) {
+    await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setState) {
+            return AlertDialog(
+              title: const Text(
+                '단어장에 추가하고 싶은 단어를 골라주세요',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w400),
+              ),
+              content: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: List.generate(vocabulary.length, (index) {
+                    final word = vocabulary[index];
+                    final wordMeanings = meanings[index];
+                    return GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          final existingEntry = selectedWordsWithMeanings
+                              .firstWhere((entry) => entry['word'] == word,
+                                  orElse: () => {});
+                          if (existingEntry.isNotEmpty) {
+                            // 이미 선택된 경우 해제
+                            selectedWordsWithMeanings.remove(existingEntry);
+                          } else {
+                            // 선택 추가
+                            selectedWordsWithMeanings.add({
+                              'word': word,
+                              'meanings': wordMeanings,
+                            });
+                          }
+                        });
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.only(bottom: 10),
+                        child: Row(
+                          children: [
+                            Container(
+                              width: 10,
+                              height: 10,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: selectedWordsWithMeanings
+                                        .any((entry) => entry['word'] == word)
+                                    ? Colors.yellow
+                                    : Colors.grey,
+                              ),
+                            ),
+                            const SizedBox(width: 15),
+                            Text(word, style: const TextStyle(fontSize: 18)),
+                          ],
+                        ),
+                      ),
+                    );
+                  }),
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(); // 다이얼로그 닫기
+                  },
+                  child: const Text('취소'),
+                ),
+                TextButton(
+                  onPressed: () {
+                    if (selectedWordsWithMeanings.isNotEmpty) {
+                      Navigator.of(context).pop(); // 선택한 단어들 반환
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('저장할 단어를 선택해주세요')),
+                      );
+                    }
+                  },
+                  child: const Text('저장'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+
+    return selectedWordsWithMeanings; // 선택된 단어들 및 뜻 반환
+  }
+
+  void _showSaveDialog(BuildContext context, List<String> vocabulary,
+      List<List<String>> meanings) async {
+    FocusScope.of(context).requestFocus(FocusNode());
+    final selectedWordsWithMeanings =
+        await _showVocabularyDialog(context, vocabulary, meanings);
+
+    if (selectedWordsWithMeanings.isNotEmpty) {
       final selectedDate =
           Provider.of<DiaryEntryModel>(context, listen: false).selectedDate;
       final sentences = analysisData.sentences;
@@ -191,8 +294,8 @@ class AnalysisResultScreen extends StatelessWidget {
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-            title: Text('저장'),
-            content: Text('저장하시겠습니까?'),
+            title: const Text('저장'),
+            content: const Text('저장하시겠습니까?'),
             actions: [
               TextButton(
                 onPressed: () async {
@@ -206,12 +309,12 @@ class AnalysisResultScreen extends StatelessWidget {
                         .set({
                       'date': selectedDate.toIso8601String(),
                       'analyzedSentences': sentences,
-                      'vocabulary': selectedWords, // 선택된 단어 저장
+                      'vocabulary': selectedWordsWithMeanings, // 단어 및 뜻 저장
                     });
 
                     // 성공 메시지
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('저장되었습니다!')),
+                      const SnackBar(content: Text('저장되었습니다!')),
                     );
                     // 저장 후 CalendarPage로 이동
                     Navigator.push(
@@ -227,101 +330,18 @@ class AnalysisResultScreen extends StatelessWidget {
                     );
                   }
                 },
-                child: Text('확인'),
+                child: const Text('확인'),
               ),
               TextButton(
                 onPressed: () {
                   Navigator.of(context).pop(); // 다이얼로그 닫기
                 },
-                child: Text('취소'),
+                child: const Text('취소'),
               ),
             ],
           );
         },
       );
     }
-  }
-
-  // vocabulary를 List<String>으로 받음
-  Future<List<String>> _showVocabularyDialog(
-      BuildContext context, List<String> vocabulary) async {
-    FocusScope.of(context).requestFocus(FocusNode());
-    List<String> selectedWords = [];
-
-    await showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return StatefulBuilder(
-          builder: (BuildContext context, StateSetter setState) {
-            return AlertDialog(
-              title: Text(
-                '단어장에 추가하고 싶은 단어를 골라주세요',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w400),
-              ),
-              content: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: vocabulary
-                      .map((word) => GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                if (selectedWords.contains(word)) {
-                                  selectedWords.remove(word); // 선택 해제
-                                } else {
-                                  selectedWords.add(word); // 선택
-                                }
-                              });
-                            },
-                            child: Padding(
-                              padding: const EdgeInsets.only(bottom: 10),
-                              child: Row(
-                                children: [
-                                  Container(
-                                    width: 10,
-                                    height: 10,
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      color: selectedWords.contains(word)
-                                          ? Colors.yellow
-                                          : Colors.grey,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 15),
-                                  Text(word,
-                                      style: const TextStyle(fontSize: 18)),
-                                ],
-                              ),
-                            ),
-                          ))
-                      .toList(),
-                ),
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop(); // 다이얼로그 닫기
-                  },
-                  child: const Text('취소'),
-                ),
-                TextButton(
-                  onPressed: () {
-                    if (selectedWords.isNotEmpty) {
-                      Navigator.of(context).pop(); // 선택한 단어들 반환
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('저장할 단어를 선택해주세요')),
-                      );
-                    }
-                  },
-                  child: const Text('저장'),
-                ),
-              ],
-            );
-          },
-        );
-      },
-    );
-
-    return selectedWords; // 선택된 단어들 반환
   }
 }

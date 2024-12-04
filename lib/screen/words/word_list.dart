@@ -1,51 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:dio/dio.dart'; // HTTP 요청용 패키지
 import '../calendar/calendar.dart';
-import '../../global.dart';
 
 class VocabularyScreen extends StatefulWidget {
+  const VocabularyScreen({super.key});
+
   @override
   _VocabularyScreenState createState() => _VocabularyScreenState();
 }
 
 class _VocabularyScreenState extends State<VocabularyScreen> {
-  final Dio _dio = Dio();
-
-  Future<String> translateWord(String word) async {
-    try {
-      final response = await _dio.post(
-        'https://api.openai.com/v1/chat/completions',
-        options: Options(
-          headers: {
-            'Authorization': 'Bearer $openapiKey',
-            'Content-Type': 'application/json',
-          },
-        ),
-        data: {
-          'model': 'gpt-3.5-turbo',
-          'messages': [
-            {
-              'role': 'system',
-              'content': 'Translate the following word from English to Korean.'
-            },
-            {'role': 'user', 'content': word}
-          ],
-          'temperature': 0.7,
-        },
-      );
-
-      if (response.statusCode == 200) {
-        return response.data['choices'][0]['message']['content'].trim();
-      } else {
-        return '번역 실패';
-      }
-    } catch (e) {
-      print('Error during translation: $e');
-      return '번역 오류';
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -106,83 +70,72 @@ class _VocabularyScreenState extends State<VocabularyScreen> {
                     );
                   }
 
+                  // 필드가 존재하는 문서만 필터링
                   final vocabularyList = snapshot.data!.docs.expand((doc) {
-                    return (doc['vocabulary'] as List)
-                        .map((word) => word.toString())
-                        .toList();
+                    if (doc.data() is Map<String, dynamic> &&
+                        (doc.data() as Map<String, dynamic>)
+                            .containsKey('vocabulary')) {
+                      return (doc['vocabulary'] as List)
+                          .map((item) => item as Map<String, dynamic>)
+                          .toList();
+                    }
+                    return []; // 필드가 없는 문서는 빈 리스트로 처리
                   }).toList();
 
                   return ListView.builder(
                     itemCount: vocabularyList.length,
                     itemBuilder: (context, index) {
-                      final word = vocabularyList[index];
-                      return FutureBuilder<String>(
-                        future: translateWord(word),
-                        builder: (context, snapshot) {
-                          if (snapshot.connectionState ==
-                              ConnectionState.waiting) {
-                            return Padding(
-                              padding: const EdgeInsets.only(bottom: 20),
-                              child: Row(
-                                children: const [
+                      final wordData = vocabularyList[index];
+                      final word = wordData['word'] as String;
+                      final meanings = (wordData['meanings'] as List)
+                          .map((meaning) => meaning.toString())
+                          .toList();
+
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 20),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              '• ',
+                              style: TextStyle(
+                                fontSize: 25,
+                                color: Colors.black54,
+                              ),
+                            ),
+                            const SizedBox(width: 5),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
                                   Text(
-                                    '• ',
-                                    style: TextStyle(
-                                      fontSize: 25,
-                                      color: Colors.black54,
+                                    word,
+                                    style: const TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.black,
                                     ),
                                   ),
-                                  SizedBox(width: 5),
-                                  Text(
-                                    '번역 중...',
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      color: Colors.black54,
-                                    ),
+                                  const SizedBox(height: 5),
+                                  ...meanings.asMap().entries.map(
+                                    (entry) {
+                                      final meaning = entry.value;
+                                      final meaningIndex =
+                                          entry.key + 1; // 번호 추가
+                                      return Text(
+                                        '$meaningIndex. $meaning', // 번호와 뜻
+                                        style: const TextStyle(
+                                          fontSize: 16,
+                                          color: Colors.black54,
+                                        ),
+                                      );
+                                    },
                                   ),
                                 ],
                               ),
-                            );
-                          }
-
-                          return Padding(
-                            padding: const EdgeInsets.only(bottom: 20),
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Text(
-                                  '• ',
-                                  style: TextStyle(
-                                    fontSize: 25,
-                                    color: Colors.black54,
-                                  ),
-                                ),
-                                const SizedBox(width: 5),
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      word,
-                                      style: const TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.black,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 5),
-                                    Text(
-                                      snapshot.data ?? '번역 오류',
-                                      style: const TextStyle(
-                                        fontSize: 16,
-                                        color: Colors.black54,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
                             ),
-                          );
-                        },
+                          ],
+                        ),
                       );
                     },
                   );

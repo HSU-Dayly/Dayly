@@ -866,8 +866,8 @@ class OtherScreen2 extends StatelessWidget {
         final sentences = parsedData['sentences'] ?? [];
         final vocabulary = parsedData['vocabulary'] ?? [];
 
-        // 문장과 단어가 모두 있을 때 화면으로 전달
-        if (sentences.isNotEmpty || vocabulary.isNotEmpty) {
+        // 문장이 있을 때 화면으로 전달
+        if (sentences.isNotEmpty) {
           // 분석 결과를 Provider를 통해 상태로 저장
           Provider.of<DiaryEntryModel>(context, listen: false)
               .setAnalysisResult(
