@@ -194,7 +194,8 @@ class DiaryModifyScreen extends StatelessWidget {
   final String content;
   final void Function(DateTime) onDelete;
 
-  DiaryModifyScreen({
+  const DiaryModifyScreen({
+    super.key,
     required this.date,
     required this.content,
     required this.onDelete,
@@ -341,28 +342,33 @@ class DiaryModifyScreen extends StatelessWidget {
   Future<void> _deleteDiaryFromFirestore(
       BuildContext context, DateTime date) async {
     try {
-      // 날짜 형식 지정 (문서 ID로 사용)
-      String formattedDate = DateFormat('yyyy-MM-dd').format(date);
+      String Date = DateFormat('yyyy-MM-dd').format(date);
+      String formattedDate = '$Date 00:00:00.000Z';
 
       // Firestore 컬렉션 참조
       CollectionReference diaries =
-          FirebaseFirestore.instance.collection('diaries');
+          FirebaseFirestore.instance.collection('diary_entries');
 
-      // 해당 문서 삭제
+      // 문서가 존재하는지 확인
+      DocumentSnapshot docSnapshot = await diaries.doc(formattedDate).get();
+      if (!docSnapshot.exists) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('일기를 찾을 수 없습니다.')),
+        );
+        return;
+      }
+
+      // 문서 삭제
       await diaries.doc(formattedDate).delete();
 
       // 삭제 성공 메시지 표시
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('일기가 성공적으로 삭제되었습니다.'),
-        ),
+        SnackBar(content: Text('일기가 성공적으로 삭제되었습니다.')),
       );
     } catch (e) {
       // 삭제 실패 시 에러 처리
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('일기 삭제에 실패했습니다.'),
-        ),
+        SnackBar(content: Text('일기 삭제에 실패했습니다.')),
       );
       print("Error deleting diary: $e");
     }
