@@ -24,15 +24,6 @@ class _VocabularyScreenState extends State<VocabularyScreen> {
           ),
         ),
         centerTitle: true,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back,
-              color: Color.fromRGBO(88, 71, 51, 0.992)),
-          onPressed: () {
-            Navigator.of(context).pushReplacement(
-              MaterialPageRoute(builder: (context) => CalendarScreen()),
-            );
-          },
-        ),
         backgroundColor: Colors.transparent,
         elevation: 0,
       ),
