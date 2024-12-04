@@ -37,7 +37,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
         title: const Text(
           'Dayly',
           style:
-          TextStyle(fontSize: 35, color: Color.fromRGBO(88, 71, 51, 0.992)),
+              TextStyle(fontSize: 35, color: Color.fromRGBO(88, 71, 51, 0.992)),
         ),
         centerTitle: true,
         actions: [
@@ -157,7 +157,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
             // 캘린더 아래 해당 날짜 일기 내용 칸
             Padding(
               padding:
-              const EdgeInsets.symmetric(vertical: 15.0, horizontal: 20.0),
+                  const EdgeInsets.symmetric(vertical: 15.0, horizontal: 20.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -232,7 +232,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
 
   Future<void> _fetchCorrectedSentences(DateTime selectedDate) async {
     final formattedDate =
-    DateFormat('yyyy-MM-dd HH:mm:ss').format(selectedDate);
+        DateFormat('yyyy-MM-dd HH:mm:ss').format(selectedDate);
 
     try {
       final querySnapshot = await FirebaseFirestore.instance
@@ -270,7 +270,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
   Future<void> _fetchDiaryEvents() async {
     try {
       final querySnapshot =
-      await FirebaseFirestore.instance.collection('diary_entries').get();
+          await FirebaseFirestore.instance.collection('diary_entries').get();
       final Map<DateTime, List<String>> events = {};
 
       for (var doc in querySnapshot.docs) {
@@ -294,7 +294,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
   Future<void> _fetchDiaryContent(DateTime selectedDate) async {
     // 선택된 날짜의 시작과 끝 범위 설정
     final startOfDay =
-    DateTime(selectedDate.year, selectedDate.month, selectedDate.day);
+        DateTime(selectedDate.year, selectedDate.month, selectedDate.day);
     final endOfDay = startOfDay.add(Duration(days: 1));
 
     try {

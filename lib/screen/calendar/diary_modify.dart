@@ -211,7 +211,7 @@ class DiaryModifyScreen extends StatelessWidget {
         elevation: 0,
         leading: IconButton(
           icon:
-          Icon(Icons.arrow_back, color: Color.fromRGBO(88, 71, 51, 0.992)),
+              Icon(Icons.arrow_back, color: Color.fromRGBO(88, 71, 51, 0.992)),
           onPressed: () => Navigator.pop(context),
         ),
         title: const Text(
@@ -346,7 +346,7 @@ class DiaryModifyScreen extends StatelessWidget {
 
       // Firestore 컬렉션 참조
       CollectionReference diaries =
-      FirebaseFirestore.instance.collection('diaries');
+          FirebaseFirestore.instance.collection('diaries');
 
       // 해당 문서 삭제
       await diaries.doc(formattedDate).delete();
