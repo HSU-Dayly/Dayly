@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'DiarySwipeScreen.dart';
 import 'package:provider/provider.dart';
 import '../calendar/calendar.dart';
+import '../main_screens.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 // class VocabularyItem {
 //   final String word;
@@ -23,6 +24,9 @@ class AnalysisResultScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final diaryModel =
+        Provider.of<DiaryEntryModel>(context); // DiaryEntryModel 가져오기
+
     final selectedDate = Provider.of<DiaryEntryModel>(context).selectedDate;
     final analyzedSentences = analysisData.sentences;
     final analyzedVocas = analysisData.vocabulary;
@@ -316,12 +320,17 @@ class AnalysisResultScreen extends StatelessWidget {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(content: Text('저장되었습니다!')),
                     );
-                    // 저장 후 CalendarPage로 이동
-                    Navigator.push(
+
+                    // 저장 후 diaryModel.resetEntry() 호출
+                    final diaryModel =
+                        Provider.of<DiaryEntryModel>(context, listen: false);
+                    diaryModel.resetEntry(); // resetEntry 호출
+
+                    // 홈 스크린으로 이동
+                    Navigator.pushAndRemoveUntil(
                       context,
-                      MaterialPageRoute(
-                        builder: (context) => CalendarScreen(),
-                      ),
+                      MaterialPageRoute(builder: (context) => MainScreens()),
+                      (Route<dynamic> route) => false, // 이전 화면을 스택에서 모두 제거
                     );
                   } catch (e) {
                     // 실패 메시지
