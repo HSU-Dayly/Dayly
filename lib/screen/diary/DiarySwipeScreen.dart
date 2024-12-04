@@ -98,8 +98,14 @@ class AnalysisData {
 // DiarySwipeScreen: 메인 화면
 class DiarySwipeScreen extends StatefulWidget {
   final DateTime selectedDate;
+  final String initialContent; // 초기 내용 파라미터 추가
 
-  const DiarySwipeScreen({super.key, required this.selectedDate});
+  // 생성자에서 selectedDate와 initialContent 둘 다 받음
+  const DiarySwipeScreen({
+    super.key,
+    required this.selectedDate,
+    required this.initialContent, // 초기 내용 추가
+  });
 
   @override
   _DiarySwipeScreenState createState() => _DiarySwipeScreenState();
@@ -107,11 +113,15 @@ class DiarySwipeScreen extends StatefulWidget {
 
 class _DiarySwipeScreenState extends State<DiarySwipeScreen> {
   final PageController _pageController = PageController();
+  final TextEditingController _textController =
+  TextEditingController(); // 내용 표시용
   int _currentPage = 0;
 
   @override
   void initState() {
     super.initState();
+    // 전달된 initialContent 값을 TextEditingController에 설정
+    _textController.text = widget.initialContent;
     // Provider로 selectedDate 설정
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<DiaryEntryModel>(context, listen: false)
@@ -129,71 +139,71 @@ class _DiarySwipeScreenState extends State<DiarySwipeScreen> {
   Future<bool> _showExitDialog() async {
     // 모달창을 띄우는 함수
     return (await showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              // title: const Text('뒤로 가기'),
-              content: Text.rich(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          // title: const Text('뒤로 가기'),
+          content: Text.rich(
+            TextSpan(
+              children: [
+                const TextSpan(
+                  text: '작성한 내용이 모두 ',
+                  style: TextStyle(
+                      color: Colors.black,
+                      // fontWeight: FontWeight.bold,
+                      fontSize: 17),
+                ),
                 TextSpan(
-                  children: [
-                    const TextSpan(
-                      text: '작성한 내용이 모두 ',
-                      style: TextStyle(
-                          color: Colors.black,
-                          // fontWeight: FontWeight.bold,
-                          fontSize: 17),
-                    ),
-                    TextSpan(
-                      text: '삭제',
-                      style: TextStyle(
-                          color: Colors.red,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 18),
-                      // '삭제'에 빨간색 적용
-                    ),
-                    const TextSpan(
-                      text: '됩니다. \n정말로 일기 작성을 취소할까요?',
-                      style: TextStyle(
-                          color: Colors.black,
-                          // fontWeight: FontWeight.bold,
-                          fontSize: 17),
-                    ),
-                    const TextSpan(
-                      text: '됩니다. \n정말로 일기 작성을 취소할까요?',
-                      style: TextStyle(
-                          color: Colors.black,
-                          // fontWeight: FontWeight.bold,
-                          fontSize: 17),
-                    ),
-                  ],
+                  text: '삭제',
+                  style: TextStyle(
+                      color: Colors.red,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18),
+                  // '삭제'에 빨간색 적용
                 ),
-              ),
-              actions: <Widget>[
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop(false); // 취소
-                  },
-                  child: const Text(
-                    '취소',
-                    style: TextStyle(fontSize: 18, color: Colors.black),
-                  ),
+                const TextSpan(
+                  text: '됩니다. \n정말로 일기 작성을 취소할까요?',
+                  style: TextStyle(
+                      color: Colors.black,
+                      // fontWeight: FontWeight.bold,
+                      fontSize: 17),
                 ),
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop(true); // 확인
-                  },
-                  child: const Text(
-                    '확인',
-                    style: TextStyle(fontSize: 18, color: Colors.black),
-                  ),
+                const TextSpan(
+                  text: '됩니다. \n정말로 일기 작성을 취소할까요?',
+                  style: TextStyle(
+                      color: Colors.black,
+                      // fontWeight: FontWeight.bold,
+                      fontSize: 17),
                 ),
               ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(false); // 취소
+              },
+              child: const Text(
+                '취소',
+                style: TextStyle(fontSize: 18, color: Colors.black),
+              ),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(true); // 확인
+              },
+              child: const Text(
+                '확인',
+                style: TextStyle(fontSize: 18, color: Colors.black),
+              ),
+            ),
+          ],
 
-              contentPadding: const EdgeInsets.all(20.0), // content의 padding 조정
-              actionsPadding: const EdgeInsets.all(10.0), // actions의 padding 조정
-            );
-          },
-        )) ??
+          contentPadding: const EdgeInsets.all(20.0), // content의 padding 조정
+          actionsPadding: const EdgeInsets.all(10.0), // actions의 padding 조정
+        );
+      },
+    )) ??
         false;
   }
 
@@ -266,7 +276,7 @@ class _DiarySwipeScreenState extends State<DiarySwipeScreen> {
                             diaryModel.secondEntry.isNotEmpty)
                           AnalysisResultScreen(
                             analysisData:
-                                diaryModel.analyzedAnalysisData, // 객체 전달
+                            diaryModel.analyzedAnalysisData, // 객체 전달
                           ),
                       ],
                     ),
@@ -276,11 +286,11 @@ class _DiarySwipeScreenState extends State<DiarySwipeScreen> {
                     padding: const EdgeInsets.all(20.0),
                     child: Row(
                       mainAxisAlignment:
-                          MainAxisAlignment.center, // 수평축의 중앙에 정렬
+                      MainAxisAlignment.center, // 수평축의 중앙에 정렬
                       children: List<Widget>.generate(4, (index) {
                         return AnimatedContainer(
                           duration:
-                              const Duration(milliseconds: 300), // 애니메이션 지속 시간
+                          const Duration(milliseconds: 300), // 애니메이션 지속 시간
                           margin: const EdgeInsets.symmetric(
                               horizontal: 4.0), // 좌우에 마진 추가
                           height: 8.0,
@@ -350,7 +360,7 @@ class _DiaryEntryScreenState extends State<DiaryEntryScreen>
 
     // 랜덤으로 주제를 선택
     final randomSuggestion = _suggestions[
-        (DateTime.now().millisecondsSinceEpoch ~/ 1000) % _suggestions.length];
+    (DateTime.now().millisecondsSinceEpoch ~/ 1000) % _suggestions.length];
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -469,7 +479,7 @@ String formatDateToEnglish(DateTime date) {
   final day = date.day;
   final month = months[date.month - 1];
   final weekday =
-      weekdays[date.weekday - 1]; // DateTime.weekday는 1부터 시작 (Monday)
+  weekdays[date.weekday - 1]; // DateTime.weekday는 1부터 시작 (Monday)
 
   // "Weekday, Day Month Year" 형태로 반환
   return "$weekday, $day $month";
@@ -535,30 +545,30 @@ class _OtherScreenState extends State<OtherScreen>
             // 첫 번째 일기 항목이 있으면 보여줌
             diaryModel.entry.isNotEmpty
                 ? Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      SizedBox(height: 10.0), // 간격 추가
-                      Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.all(10.0),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(16.0),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.grey.withOpacity(0.3),
-                              blurRadius: 8,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                        child: Text(
-                          diaryModel.entry,
-                          style: const TextStyle(fontSize: 18),
-                        ),
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                SizedBox(height: 10.0), // 간격 추가
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(10.0),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16.0),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.3),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
                       ),
                     ],
-                  )
+                  ),
+                  child: Text(
+                    diaryModel.entry,
+                    style: const TextStyle(fontSize: 18),
+                  ),
+                ),
+              ],
+            )
                 : const SizedBox.shrink(),
 
             // 두 번째 일기 항목 작성
@@ -673,7 +683,7 @@ class OtherScreen2 extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final diaryModel =
-        Provider.of<DiaryEntryModel>(context); // DiaryEntryModel 가져오기
+    Provider.of<DiaryEntryModel>(context); // DiaryEntryModel 가져오기
     final selectedDate = diaryModel.selectedDate; // selectedDate 가져오기
 
     return Padding(
@@ -840,7 +850,7 @@ class OtherScreen2 extends StatelessWidget {
       if (response.statusCode == 200) {
         // `response.bodyBytes`를 UTF-8로 디코딩
         final responseBody =
-            utf8.decode(response.bodyBytes); // 바이너리 데이터를 UTF-8로 디코딩
+        utf8.decode(response.bodyBytes); // 바이너리 데이터를 UTF-8로 디코딩
         print('Decoded Response Body: $responseBody'); // 디코딩 후 결과 확인
 
         final data = jsonDecode(responseBody); // 디코딩된 본문을 JSON으로 파싱
@@ -867,10 +877,10 @@ class OtherScreen2 extends StatelessWidget {
                   .toList(),
               vocabulary: (vocabulary as List<dynamic>)
                   .map((e) => VocabularyItem(
-                        word: e['word'] as String,
-                        meanings: List<String>.from(
-                            e['meanings'] as List<dynamic>), // 배열로 처리
-                      ))
+                word: e['word'] as String,
+                meanings: List<String>.from(
+                    e['meanings'] as List<dynamic>), // 배열로 처리
+              ))
                   .toList(),
             ),
           );
