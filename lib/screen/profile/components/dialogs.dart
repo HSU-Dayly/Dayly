@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class AlarmDialog extends StatelessWidget {
   final String alarmTime;
 
-  AlarmDialog(this.alarmTime);
+  const AlarmDialog(this.alarmTime, {super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -29,15 +29,14 @@ class AlarmDialog extends StatelessWidget {
     return AlertDialog(
       backgroundColor: Color(0xFFEEEEEE),
       title: Text(
-        '일기 작성 알림 받을 시간을 설정해주세요!',
-        style: TextStyle(fontSize: 18),
+        '일기 작성 알림 시간을 설정하세요!',
+        style: TextStyle(fontSize: 19),
       ),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(formattedTime, style: TextStyle(fontSize: 50)),
           SizedBox(height: 16),
-
         ],
       ),
       actions: [
@@ -46,10 +45,14 @@ class AlarmDialog extends StatelessWidget {
           children: [
             OutlinedButton(
               onPressed: () => Navigator.of(context).pop(), // 아무 값도 반환하지 않음
-              style: OutlinedButton.styleFrom(side: BorderSide(color: Color(0xFF776767))),
-              child: Text('취소', style: TextStyle(fontSize: 16, color: Color(0xFF776767))),
+              style: OutlinedButton.styleFrom(
+                  side: BorderSide(color: Color(0xFF776767))),
+              child: Text('취소',
+                  style: TextStyle(fontSize: 16, color: Color(0xFF776767))),
             ),
-            SizedBox(width: 8.0,),
+            SizedBox(
+              width: 8.0,
+            ),
             OutlinedButton(
               onPressed: () async {
                 final TimeOfDay? time = await showTimePicker(
@@ -76,13 +79,15 @@ class AlarmDialog extends StatelessWidget {
                 if (time != null) {
                   String selectedFormattedTime =
                       "${time.hour}:${time.minute.toString().padLeft(2, '0')}";
-                  Navigator.of(context).pop(selectedFormattedTime); // 선택한 시간을 반환
+                  Navigator.of(context)
+                      .pop(selectedFormattedTime); // 선택한 시간을 반환
                 }
               },
               style: OutlinedButton.styleFrom(
                 side: BorderSide(color: Color(0xFF776767)),
               ),
-              child: Text('시간 선택하기', style: TextStyle(fontSize: 16, color: Color(0xFF776767))),
+              child: Text('시간 선택하기',
+                  style: TextStyle(fontSize: 16, color: Color(0xFF776767))),
             ),
           ],
         ),
@@ -94,7 +99,7 @@ class AlarmDialog extends StatelessWidget {
 class GoalDialog extends StatelessWidget {
   final int currentGoal; // 현재 목표 전달받기
 
-  GoalDialog(this.currentGoal);
+  const GoalDialog(this.currentGoal, {super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -104,7 +109,10 @@ class GoalDialog extends StatelessWidget {
 
     return AlertDialog(
       backgroundColor: Color(0xFFEEEEEE),
-      title: Text('이번달 목표를 설정해주세요!'),
+      title: Text(
+        '이번달 목표를 설정하세요!',
+        style: TextStyle(fontSize: 20),
+      ),
       content: SingleChildScrollView(
         // 스크롤 가능하도록 수정
         child: TextField(
