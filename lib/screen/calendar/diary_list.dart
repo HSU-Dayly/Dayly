@@ -66,9 +66,9 @@ class DiaryListScreen extends StatelessWidget {
                   ? DateTime.parse(doc['date']).toLocal() // ISO 형식의 날짜를 변환
                   : DateTime.now();
               final analyzedSentences =
-                  (doc['analyzedSentences'] as List<dynamic>? ?? []);
+              (doc['analyzedSentences'] as List<dynamic>? ?? []);
               final formattedDate =
-                  DateFormat('MMM d').format(date); // 날짜 형식 지정
+              DateFormat('MMM d').format(date); // 날짜 형식 지정
 
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,

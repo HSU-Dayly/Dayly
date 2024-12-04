@@ -29,7 +29,7 @@ class _DailyWordsScreenState extends State<DailyWordsScreen> {
       {
         'role': 'system',
         'content': '''
-당신은 영어 표현을 추천하고, 각 표현의 의미와 예문을 제공하는 도우미입니다. 오늘의 영어 단어 또는 표현 10개를 추천해 주세요. 일상에서 자주 쓰이는 단어와 표현 위주로 작성해 주세요.
+당신은 영어 단어 또는 표현을 추천하고, 각 표현의 의미와 예문을 제공하는 도우미입니다. 영어 단어 또는 표현 10개를 추천해 주세요. 흔한 단어도 괜찮고, 잘 쓰이지 않는 영어 표현이라면 더 좋습니다.
 각 표현에 대해 "expression", "meaning", "example"을 포함한 JSON 객체로 응답해 주세요.
 예시:
 [
@@ -59,7 +59,7 @@ class _DailyWordsScreenState extends State<DailyWordsScreen> {
         'model': 'gpt-4',
         'messages': messages,
         'max_tokens': 1000, // 충분한 토큰 수 설정
-        'temperature': 0.7,
+        'temperature': 1.0,
       }),
     );
 

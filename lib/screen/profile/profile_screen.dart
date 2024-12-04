@@ -1,8 +1,8 @@
 import 'dart:ui';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dayly/global.dart';
 import 'package:dayly/screen/login_screen.dart';
-import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -31,6 +31,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     _fetchGoalDiary();
     _loadDaysSinceSignUp();
     _calculateProgress();
+    _fetchDiaryStats();
   }
 
   // 캐시에서 닉네임 가져오기
@@ -86,6 +87,30 @@ class _ProfileScreenState extends State<ProfileScreen> {
       progressValue = goalDiary > 0 ? monthlyDiary / goalDiary : 0.0;
       if (progressValue > 1.0) progressValue = 1.0; // 최대값 1.0 제한
     });
+  }
+
+  Future<void> _fetchDiaryStats() async {
+    final now = DateTime.now();
+    final startOfMonth = DateTime(now.year, now.month, 1);
+    final endOfMonth = DateTime(now.year, now.month + 1, 1).subtract(Duration(seconds: 1));
+
+    try {
+      final diaryEntries = await FirebaseFirestore.instance.collection('diary_entries').get();
+      final monthlyEntries = await FirebaseFirestore.instance
+          .collection('diary_entries')
+          .where('date', isGreaterThanOrEqualTo: startOfMonth.toIso8601String())
+          .where('date', isLessThanOrEqualTo: endOfMonth.toIso8601String())
+          .get();
+
+      setState(() {
+        totalDiary = diaryEntries.size; // 전체 일기 개수
+        monthlyDiary = monthlyEntries.size; // 이번 달 일기 개수
+      });
+
+      _calculateProgress(); // 진행률 재계산
+    } catch (e) {
+      print("Error fetching diary stats: $e");
+    }
   }
 
   void _showAlarmDialog() async {
