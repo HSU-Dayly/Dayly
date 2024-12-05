@@ -32,10 +32,11 @@ Dayly는 그냥 영어 학습 도구가 아니라, 일상적인 자기 성찰을
 <br>
 
 ## 💝 주요 기능 
-- Dayly는 번거로운 회원가입 과정 없이 소셜로그인을 통해 사용할 수 있어요. 한 번만 로그인 해도 그 후부터는 자동로그인이 되기 때문에 이용하기에 더 간편해요. 소셜 로그인을 하고, 사용자가 원하는 이름을 정할 수 있어요. 이 이름은 추후에 얼마든지 변경할 수 있어요.
+- Dayly는 번거로운 회원가입 과정 없이 소셜로그인을 통해 사용할 수 있어요. 한 번만 로그인 해도 그 후부터는 자동로그인이 되기 때문에 이용하기에 더 간편해요. 소셜 로그인을 하고, 사용자가 원하는 이름을 정할 수 있어요. 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/36271955-aac0-49b9-ad65-6054c6e92714" width="200" style="margin-right: 20px;"/>
-  <img src="https://github.com/user-attachments/assets/27f25f0f-975b-454f-8fc3-823f49f75517" width="200"/>
+  <img src="https://github.com/user-attachments/assets/c97ba901-4c0a-4511-8e97-9b71f309b6c6" width="200" style="margin-right: 20px;"/>
+  <img src="https://github.com/user-attachments/assets/841d9ae9-2039-4b7b-8ffc-c4515b7b774f" width="200" style="margin-right: 20px;"/>
+  <img src="https://github.com/user-attachments/assets/80b4f583-a2f6-4e3e-b3ef-7d054d17d2be" width="200"/>
 </p>
 <br>
 
