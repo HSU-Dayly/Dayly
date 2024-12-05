@@ -1,15 +1,3 @@
-# Dayly
-- **FEAT** : 새로운 기능의 추가<br>
-- **FIX**: 버그 수정<br>
-- **DOCS**: 문서 수정<br>
-- **STYLE**: 스타일 관련 기능(코드 포맷팅, 세미콜론 누락, 코드 자체의 변경이 없는 경우)<br>
-- **REFACTOR**: 코드 리펙토링<br>
-- **TEST**: 테스트 코트, 리펙토링 테스트 코드 추가<br>
-- **CHORE**: 빌드 업무 수정, 패키지 매니저 수정(ex .gitignore 수정 같은 경우)<br><br>
-
-ex) git commit -m "fix : 스크롤 버그 수정"<br>
-ex) git commit -m "feat : 일기 피드백 기능 추가"
-
 # 📓 Dayly
 **사용자의 일상을 기록하고 영어 능력을 향상시키는 일기장 어플: Dayly**
 <br> <br>
@@ -27,18 +15,18 @@ Dayly는 그냥 영어 학습 도구가 아니라, 일상적인 자기 성찰을
 * 24.11.01 - 24.12.06 (5주)
 <br>
 
-## 🧑‍🤝‍🧑 멤버구성
+## 🧑‍🤝‍🧑 멤버 구성
  - 팀원1 : [하여린](https://github.com/niroey) - 소셜로그인 페이지 및 파이어베이스 구축
- - 팀원2 : [전아린](https://github.com/flsrinn) - 마이페이지 구현
+ - 팀원2 : [전아린](https://github.com/flsrinn) - 마이 페이지, 오늘의 단어 페이지 구현
  - 팀원3 : [김은비](https://github.com/ssilverrain) - 일기작성 페이지 구현
- - 팀원4 : [정세연](https://github.com/sseyeonn) - 메인 페이지 구현
+ - 팀원4 : [정세연](https://github.com/sseyeonn) - 캘린더 페이지, 단어장 페이지 구현
 <br>
 
  ## ⚙️ 개발 환경
 - **Programming Language** : Dart
 - **IDE** : Visual Studio, Android Studio
 - **Framework** : Flutter
-- **Database** : Firebase (실시간 데이터베이스, 인증 등 활용)
+- **Database** : Firebase
 - **Server**: Firebase Hosting
 
 <br>
@@ -61,16 +49,18 @@ Dayly는 그냥 영어 학습 도구가 아니라, 일상적인 자기 성찰을
 
 - 일기 작성 화면이에요. 오늘 있었던 일을 자유롭게 한글로 먼저 작성할 수 있어요. 모르는 단어가 있더라도 걱정하지 마세요. 아래 쪽의 검색버튼을 이용해 NAVER사전으로 바로 연결시켜드려요. <br> 오른쪽으로 화면을 스와이프 하면 작성한 일기를 영어로 작성해볼 수 있어요. 한번 더 오른쪽으로 스와이프 하면 영어로 작성한 일기를 분석하여 첨삭~~~
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/8983f3c8-ded8-48a9-8f61-f42f03983e4a" width="200" style="margin-right: 20px;"/>
-  <img src="https://github.com/user-attachments/assets/fc0e60f0-aec1-414d-9fb5-d0fb3db10244" width="200" style="margin-right: 20px;"/>
-  <img src="https://github.com/user-attachments/assets/bc7d7ffa-89b1-4559-9504-e36a2fffdd7d" width="200" style="margin-right: 20px;"/>
-  <img src="https://github.com/user-attachments/assets/dad5e223-e28c-4c5c-ab0a-880645b25543" width="200"/>
+  <img src="https://github.com/user-attachments/assets/87113a20-ecc9-4a59-af09-830c2f0a9807" width="200" style="margin-right: 20px;"/>
+  <img src="https://github.com/user-attachments/assets/1c48100d-b1af-48e2-9ec0-edc723057eb3" width="200" style="margin-right: 20px;"/>
+  <img src="https://github.com/user-attachments/assets/4ae006fa-7640-4f34-a0fc-657e340ca582" width="200"/>
 </p>
 <br>
 
 - 틀린 부분을 다시 보고 싶을 때도 걱정하지 마세요. 첨삭된 부분 중 중요한 단어를 골라서 나만의 단어장을 만들어줘요. 
 
-<p align="center"><img src="https://github.com/user-attachments/assets/d3606ad3-5fc0-49c7-86c9-bbe2854ac0ce" width="200"/></p> <br>
+<p align="center">
+ <img src="https://github.com/user-attachments/assets/cfd7dacc-c250-4142-9d8b-0dbbad947c7c" width="200" style="margin-right: 20px;"/>
+ <img src="https://github.com/user-attachments/assets/ffaeefaa-6d15-4a2c-8f59-be9f59075fcb" width="200"/>
+</p> <br>
 
 - 더욱 더 풍부한 영어 공부를 위해, 영작 연습을 도와드려요. Dayly에서 엄선한 문장들 중 하루에 10개를 골라내어서~~~~ 영작연습도 가능~~~
 
