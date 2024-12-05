@@ -31,7 +31,7 @@ Dayly는 그냥 영어 학습 도구가 아니라, 일상적인 자기 성찰을
 
 <br>
 
-## 💝 주요 기능
+## 💝 주요 기능 
 - Dayly는 번거로운 회원가입 과정 없이 소셜로그인을 통해 사용할 수 있어요. 한 번만 로그인 해도 그 후부터는 자동로그인이 되기 때문에 이용하기에 더 간편해요. 소셜 로그인을 하고, 사용자가 원하는 이름을 정할 수 있어요. 이 이름은 추후에 얼마든지 변경할 수 있어요.
 <p align="center">
   <img src="https://github.com/user-attachments/assets/36271955-aac0-49b9-ad65-6054c6e92714" width="200" style="margin-right: 20px;"/>
@@ -47,14 +47,33 @@ Dayly는 그냥 영어 학습 도구가 아니라, 일상적인 자기 성찰을
 </p>
 <br>
 
-- 일기 작성 화면이에요. 오늘 있었던 일을 자유롭게 한글로 먼저 작성할 수 있어요. 모르는 단어가 있더라도 걱정하지 마세요. 아래 쪽의 검색버튼을 이용해 NAVER사전으로 바로 연결시켜드려요. <br> 오른쪽으로 화면을 스와이프 하면 작성한 일기를 영어로 작성해볼 수 있어요. 한번 더 오른쪽으로 스와이프 하면 영어로 작성한 일기를 분석하여 첨삭~~~
+### 일기 작성
+- 일기 작성 화면이에요. 오늘 있었던 일을 자유롭게 한글로 먼저 작성할 수 있어요.  <br> 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/87113a20-ecc9-4a59-af09-830c2f0a9807" width="200" style="margin-right: 20px;"/>
-  <img src="https://github.com/user-attachments/assets/1c48100d-b1af-48e2-9ec0-edc723057eb3" width="200" style="margin-right: 20px;"/>
-  <img src="https://github.com/user-attachments/assets/4ae006fa-7640-4f34-a0fc-657e340ca582" width="200"/>
+  <img src="https://github.com/user-attachments/assets/87113a20-ecc9-4a59-af09-830c2f0a9807" width="200" />
 </p>
 <br>
 
+- 오른쪽으로 화면을 스와이프 하면 한글로 작성한 일기를 영어로 작성해볼 수 있어요. 
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/1c48100d-b1af-48e2-9ec0-edc723057eb3" width="200"/>
+</p>
+
+- 모르는 단어가 있더라도 걱정하지 마세요. 아래 쪽의 검색버튼을 이용해 NAVER 사전으로 바로 연결시켜드려요.
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/937fed2b-3f61-448d-b55f-f19988e04db7" width="200" style="margin-right: 20px;"/>
+  <img src="https://github.com/user-attachments/assets/116e5ae3-3643-4e8c-9d22-6ed9cd24fc75" width="200"/>
+</p>
+
+
+### AI 기반 영어 분석
+- 영어 일기 작성 화면에서 한번 더 오른쪽으로 스와이프 하면 영어로 작성된 일기를 GPT가 분석하여 첨삭을 진행해줍니다!
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/0472af8c-2983-4566-89a6-c1d642535969" width="200" style="margin-right: 20px;"/>
+  <img src="https://github.com/user-attachments/assets/4ae006fa-7640-4f34-a0fc-657e340ca582" width="200"/>
+</p>
+
+### 단어장
 - 틀린 부분을 다시 보고 싶을 때도 걱정하지 마세요. 첨삭된 부분 중 중요한 단어를 골라서 나만의 단어장을 만들어줘요. 
 
 <p align="center">
@@ -62,7 +81,7 @@ Dayly는 그냥 영어 학습 도구가 아니라, 일상적인 자기 성찰을
  <img src="https://github.com/user-attachments/assets/ffaeefaa-6d15-4a2c-8f59-be9f59075fcb" width="200"/>
 </p> <br>
 
-- 더욱 더 풍부한 영어 공부를 위해, 영작 연습을 도와드려요. Dayly에서 엄선한 문장들 중 하루에 10개를 골라내어서~~~~ 영작연습도 가능~~~
+- 또한 Dayly는 오늘의 영어 표현 10가지를 추천해줍니다. 이중 랜덤한 표현으로 한도 제한 없이 영작 연습도 가능해요. 
 
 <p align="center">
   <img src="https://github.com/user-attachments/assets/3a160ac8-7f67-4a20-a217-035a62dcdf9b" width="200" style="margin-right: 20px;"/>
