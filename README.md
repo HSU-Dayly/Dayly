@@ -42,8 +42,8 @@ Dayly는 그냥 영어 학습 도구가 아니라, 일상적인 자기 성찰을
 - 로그인에 성공하면 달력이 나오고, 사용자는 작성한 일기를 달력 또는 표 형태로 확인할 수 있어요.
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/6a6323d7-5822-4c79-a0c6-bb262f7e0195" width="200" style="margin-right: 20px;"/>
-  <img src="https://github.com/user-attachments/assets/bfd9c6a0-1ef2-483e-a87d-58709e6e8d58" width="200"/>
+  <img src="https://github.com/user-attachments/assets/f2156cde-c441-498c-8b9b-6d749651c588" width="200" style="margin-right: 20px;"/>
+  <img src="https://github.com/user-attachments/assets/1ef36a72-7e69-4e26-af0f-661e85a38626" width="200"/>
 </p>
 <br>
 
@@ -65,8 +65,9 @@ Dayly는 그냥 영어 학습 도구가 아니라, 일상적인 자기 성찰을
 - 더욱 더 풍부한 영어 공부를 위해, 영작 연습을 도와드려요. Dayly에서 엄선한 문장들 중 하루에 10개를 골라내어서~~~~ 영작연습도 가능~~~
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/b2c86c29-0167-41e0-88c1-bfe6a0a33489" width="200"/>
-  <img src="https://github.com/user-attachments/assets/d15ec347-5bd2-4600-983a-0d016743eea5" width="200"/>
+  <img src="https://github.com/user-attachments/assets/3a160ac8-7f67-4a20-a217-035a62dcdf9b" width="200"/>
+  <img src="https://github.com/user-attachments/assets/0598402e-77cf-442e-abd6-e36f48c1a0ee" width="200"/>
+  <img src="https://github.com/user-attachments/assets/2034ee15-9218-43f3-9fed-96680b16ae0f" width="200"/>
 </p>
 <br>
 
