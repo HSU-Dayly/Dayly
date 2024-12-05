@@ -295,28 +295,22 @@ class AnalysisResultScreen extends StatelessWidget {
   void _showSaveDialog(BuildContext context, List<String> vocabulary,
       List<List<String>> meanings) async {
     FocusScope.of(context).requestFocus(FocusNode());
-    final selectedDate =
-        Provider.of<DiaryEntryModel>(context, listen: false).selectedDate;
+
+    // DiaryEntryModel 및 날짜 가져오기
+    final diaryModel = Provider.of<DiaryEntryModel>(context, listen: false);
+    final selectedDate = diaryModel.selectedDate;
+
+    // 단어 선택 다이얼로그를 먼저 호출하여 선택된 단어를 가져옴
     List<Map<String, dynamic>> selectedWordsWithMeanings = [];
     if (vocabulary.isNotEmpty) {
       selectedWordsWithMeanings =
           await _showVocabularyDialog(context, vocabulary, meanings);
     }
-    // final selectedWordsWithMeanings =
-    //     await _showVocabularyDialog(context, vocabulary, meanings);
 
-    // if (selectedWordsWithMeanings.isNotEmpty) {
-
-    // 'corrected' 필드만 추출해서 하나의 문자열로 합치기 (올바르게 작성된 일기)
-    final analyzedSentences = analysisData.sentences;
-    final correctedText = analyzedSentences
-        .map((sentence) =>
-            sentence['corrected'] ?? '') // 'corrected' 값 추출 (없으면 빈 문자열)
-        .join(' '); // 공백으로 구분하여 하나의 문자열로 결합
-
-    // final sentences = analysisData.sentences;
-    //여기
-    // print('파베에 저장되는 $sentences');
+    // 'corrected' 필드만 추출해서 하나의 문자열로 합치기
+    final correctedText = analysisData.sentences
+        .map((sentence) => sentence['corrected'] ?? '')
+        .join(' ');
 
     showDialog(
       context: context,
@@ -346,13 +340,8 @@ class AnalysisResultScreen extends StatelessWidget {
             ),
             TextButton(
               onPressed: () async {
-                Navigator.of(context).pop(); // 다이얼로그 닫기
-
-                final diaryModel =
-                    Provider.of<DiaryEntryModel>(context, listen: false);
-
-                // Firestore에 저장
                 try {
+                  // Firestore에 데이터 저장
                   await FirebaseFirestore.instance
                       .collection('diary_entries')
                       .doc(selectedDate.toString())
@@ -360,27 +349,25 @@ class AnalysisResultScreen extends StatelessWidget {
                     'date': selectedDate.toIso8601String(),
                     'analyzedSentences': correctedText,
                     'koreanSentences': diaryModel.entry,
-                    'vocabulary': vocabulary.isNotEmpty
-                        ? selectedWordsWithMeanings // vocabulary가 있을 경우
-                        : [], // 없으면 빈 리스트 저장
+                    'vocabulary': selectedWordsWithMeanings, // 선택된 단어 저장
                   });
 
-                  // 성공 메시지
+                  // 상태 초기화
+                  diaryModel.resetEntry();
+
+                  // 성공 메시지 표시
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text('저장되었습니다!')),
                   );
 
-                  // 저장 후 diaryModel.resetEntry() 호출
-                  diaryModel.resetEntry(); // resetEntry 호출
-
-                  // 홈 스크린으로 이동
+                  // 메인 화면으로 이동
                   Navigator.pushAndRemoveUntil(
                     context,
                     MaterialPageRoute(builder: (context) => MainScreens()),
-                    (Route<dynamic> route) => false, // 이전 화면을 스택에서 모두 제거
+                    (route) => false,
                   );
                 } catch (e) {
-                  // 실패 메시지
+                  // 에러 처리
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(content: Text('저장 실패: $e')),
                   );
