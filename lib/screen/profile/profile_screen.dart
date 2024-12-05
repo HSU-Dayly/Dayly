@@ -33,6 +33,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     _fetchGoalDiary();
     _loadDaysSinceSignUp();
     _calculateProgress();
+    _fetchDiaryInARow();
     _fetchDiaryStats();
   }
 
@@ -223,6 +224,51 @@ class _ProfileScreenState extends State<ProfileScreen> {
         MaterialPageRoute(builder: (context) => LoginScreen()),
         (route) => false);
   }
+
+  Future<void> _fetchDiaryInARow() async {
+    try {
+      final userId = FirebaseAuth.instance.currentUser?.uid;
+      if (userId == null) return;
+
+      final querySnapshot = await FirebaseFirestore.instance
+          .collection('diary_entries')
+          .where('userId', isEqualTo: userId) // 현재 사용자 데이터만 가져오기
+          .orderBy('date', descending: true) // 최신 날짜부터 정렬
+          .get();
+
+      final List<DateTime> diaryDates = querySnapshot.docs
+          .map((doc) => DateTime.parse(doc['date'] as String))
+          .toList();
+
+      int streak = _calculateStreak(diaryDates);
+
+      setState(() {
+        diaryInARow = streak; // 연속 작성 기록 업데이트
+      });
+    } catch (e) {
+      print("Error fetching diary streak: $e");
+    }
+  }
+
+  int _calculateStreak(List<DateTime> dates) {
+    if (dates.isEmpty) return 0;
+
+    dates.sort(); // 오래된 날짜부터 정렬
+    int streak = 1; // 연속 작성 일수 (최소 1)
+
+    for (int i = 1; i < dates.length; i++) {
+      final difference = dates[i].difference(dates[i - 1]).inDays;
+
+      if (difference == 1) {
+        streak++; // 하루 차이로 작성된 경우 연속 기록 증가
+      } else if (difference > 1) {
+        break; // 연속 기록이 끊긴 경우 루프 종료
+      }
+    }
+
+    return streak;
+  }
+
 
   @override
   Widget build(BuildContext context) {
