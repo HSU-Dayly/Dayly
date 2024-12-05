@@ -98,11 +98,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final endOfMonth =
         DateTime(now.year, now.month + 1, 1).subtract(Duration(seconds: 1));
 
+    final userId = FirebaseAuth.instance.currentUser?.uid;
+    if (userId == null) return; // 로그인된 사용자가 없는 경우 종료
+
     try {
-      final diaryEntries =
-          await FirebaseFirestore.instance.collection('diary_entries').get();
+      // 전체 일기 수 가져오기
+      final diaryEntries = await FirebaseFirestore.instance
+          .collection('diary_test') // diary_entries -> diary_test
+          .where('userId', isEqualTo: userId) // 사용자 ID 필터 추가
+          .get();
+
+      // 이번 달 작성된 일기 수 가져오기
       final monthlyEntries = await FirebaseFirestore.instance
-          .collection('diary_entries')
+          .collection('diary_test') // diary_entries -> diary_test
+          .where('userId', isEqualTo: userId) // 사용자 ID 필터 추가
           .where('date', isGreaterThanOrEqualTo: startOfMonth.toIso8601String())
           .where('date', isLessThanOrEqualTo: endOfMonth.toIso8601String())
           .get();
@@ -230,16 +239,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
       final userId = FirebaseAuth.instance.currentUser?.uid;
       if (userId == null) return;
 
+      // 사용자 ID를 기준으로 데이터 필터링
       final querySnapshot = await FirebaseFirestore.instance
-          .collection('diary_entries')
-          .where('userId', isEqualTo: userId) // 현재 사용자 데이터만 가져오기
+          .collection('diary_test') // diary_entries -> diary_test
+          .where('userId', isEqualTo: userId) // 사용자 ID 필터 추가
           .orderBy('date', descending: true) // 최신 날짜부터 정렬
           .get();
 
+      // 일기 작성 날짜 리스트 추출
       final List<DateTime> diaryDates = querySnapshot.docs
           .map((doc) => DateTime.parse(doc['date'] as String))
           .toList();
 
+      // 연속 작성 기록 계산
       int streak = _calculateStreak(diaryDates);
 
       setState(() {
@@ -268,7 +280,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
     return streak;
   }
-
 
   @override
   Widget build(BuildContext context) {
