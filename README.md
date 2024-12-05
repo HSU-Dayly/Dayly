@@ -36,8 +36,7 @@ Dayly는 그냥 영어 학습 도구가 아니라, 일상적인 자기 성찰을
 <p align="center">
   <img src="https://github.com/user-attachments/assets/acfa4520-979f-4772-954c-a14765be6508" width="200" style="margin-right: 20px;"/>
   <img src="https://github.com/user-attachments/assets/841d9ae9-2039-4b7b-8ffc-c4515b7b774f" width="200" style="margin-right: 20px;"/>
-  <img src="https://github.com/user-attachments/assets/feddd015-3615-4510-a6f8-97924267ab89
-" width="200"/>
+  <img src="https://github.com/user-attachments/assets/feddd015-3615-4510-a6f8-97924267ab89" width="200"/>
 </p>
 <br>
 
