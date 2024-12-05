@@ -65,15 +65,18 @@ Dayly는 그냥 영어 학습 도구가 아니라, 일상적인 자기 성찰을
 - 더욱 더 풍부한 영어 공부를 위해, 영작 연습을 도와드려요. Dayly에서 엄선한 문장들 중 하루에 10개를 골라내어서~~~~ 영작연습도 가능~~~
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/3a160ac8-7f67-4a20-a217-035a62dcdf9b" width="200"/>
-  <img src="https://github.com/user-attachments/assets/0598402e-77cf-442e-abd6-e36f48c1a0ee" width="200"/>
+  <img src="https://github.com/user-attachments/assets/3a160ac8-7f67-4a20-a217-035a62dcdf9b" width="200" style="margin-right: 20px;"/>
+  <img src="https://github.com/user-attachments/assets/0598402e-77cf-442e-abd6-e36f48c1a0ee" width="200" style="margin-right: 20px;"/>
   <img src="https://github.com/user-attachments/assets/2034ee15-9218-43f3-9fed-96680b16ae0f" width="200"/>
 </p>
 <br>
 
 - 마이페이지도 볼수있음요~
 
-<p align="center"><img src="https://github.com/user-attachments/assets/4a463d72-2227-4cfd-92e7-41f9dd2afbee" width="200"/></p>
+<p align="center">
+ <img src="https://github.com/user-attachments/assets/4a463d72-2227-4cfd-92e7-41f9dd2afbee" width="200" style="margin-right: 20px;"/>
+ <img src="https://github.com/user-attachments/assets/1037208e-fca5-48be-a929-c15b0b8543d2" width="200"/>
+</p>
 
 <br>
 
