@@ -17,8 +17,7 @@ class DiaryListScreen extends StatelessWidget {
             'Dayly',
             style: TextStyle(
               fontSize: 36.0,
-              fontWeight: FontWeight.bold,
-              color: Color(0XFF776767),
+              color: Color.fromRGBO(88, 71, 51, 0.992),
             ),
           ),
           centerTitle: true,
@@ -61,12 +60,13 @@ class DiaryListScreen extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Divider(thickness: 2, color: Colors.grey[300]), // 구분선
+                  SizedBox(height: 5),
                   Padding(
                     padding: const EdgeInsets.only(left: 16.0), // 날짜 패딩
                     child: Text(
                       formattedDate, // 날짜 출력 (요일 포함)
                       style: TextStyle(
-                        fontSize: 24, // 날짜 글씨 크기
+                        fontSize: 20, // 날짜 글씨 크기
                         fontWeight: FontWeight.bold,
                         color: Color(0XFF776767),
                       ),
@@ -111,7 +111,7 @@ class DiaryListScreen extends StatelessWidget {
                       ),
                     ),
                   ),
-                  SizedBox(height: 16), // 다음 항목과 간격
+                  // SizedBox(height: 5),
                 ],
               );
             },
