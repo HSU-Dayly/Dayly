@@ -1,4 +1,5 @@
 import 'package:dayly/screen/calendar/diary_modify.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
@@ -8,6 +9,7 @@ class DiaryListScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final userId = FirebaseAuth.instance.currentUser?.uid;
     return Scaffold(
       backgroundColor: const Color(0xFFEEEEEE),
       appBar: PreferredSize(
@@ -27,7 +29,8 @@ class DiaryListScreen extends StatelessWidget {
       ),
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance
-            .collection('diary_entries') // Firestore 컬렉션 이름
+            .collection('diary_test') // Firestore 컬렉션 이름
+            .where('userId', isEqualTo: userId) // 사용자 ID 필터 추가
             .snapshots(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -84,7 +87,7 @@ class DiaryListScreen extends StatelessWidget {
                             onDelete: (date) {
                               // 삭제 콜백 동작 정의
                               FirebaseFirestore.instance
-                                  .collection('diary_entries')
+                                  .collection('diary_test')
                                   .doc(doc.id)
                                   .delete()
                                   .then((_) {

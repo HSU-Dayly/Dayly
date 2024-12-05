@@ -184,6 +184,7 @@
 //   }
 // }
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../diary/DiarySwipeScreen.dart';
@@ -302,16 +303,24 @@ class DiaryModifyScreen extends StatelessWidget {
   // Firestore에서 일기 데이터를 가져오고 수정 화면으로 이동하는 함수
   Future<void> _fetchDiaryDataAndNavigate(BuildContext context) async {
     try {
+      final userId = FirebaseAuth.instance.currentUser?.uid;
+      if (userId == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('로그인이 필요합니다.')),
+        );
+        return;
+      }
+
       String formattedDate = DateFormat('yyyy-MM-dd').format(date);
       String firestoreDate = '$formattedDate 00:00:00.000Z';
 
       // Firestore에서 일기 데이터 가져오기
       DocumentSnapshot docSnapshot = await FirebaseFirestore.instance
-          .collection('diary_entries')
+          .collection('diary_test') // diary_entries -> diary_test
           .doc(firestoreDate)
           .get();
 
-      if (docSnapshot.exists) {
+      if (docSnapshot.exists && docSnapshot['userId'] == userId) {
         // Firestore에서 데이터 가져오기
         String koreanContent = docSnapshot['koreanSentences'] ?? '';
         String englishContent = docSnapshot['analyzedSentences'] ?? '';
@@ -328,14 +337,13 @@ class DiaryModifyScreen extends StatelessWidget {
           ),
         );
       } else {
-        print('일기 데이터를 찾을 수 없습니다 error in diary_modify.dart');
+        print('일기 데이터를 찾을 수 없습니다.');
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('일기 데이터를 찾을 수 없습니다.')),
         );
       }
     } catch (e) {
-      print('일기 데이터를 가져오는 중 오류가 발생했습니다 error in diary_modify.dart');
-      print("Error fetching diary data: $e");
+      print('일기 데이터를 가져오는 중 오류 발생: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('일기 데이터를 가져오는 중 오류가 발생했습니다.')),
       );
@@ -377,35 +385,44 @@ class DiaryModifyScreen extends StatelessWidget {
   Future<void> _deleteDiaryFromFirestore(
       BuildContext context, DateTime date) async {
     try {
-      String Date = DateFormat('yyyy-MM-dd').format(date);
-      String formattedDate = '$Date 00:00:00.000Z';
-
-      // Firestore 컬렉션 참조
-      CollectionReference diaries =
-          FirebaseFirestore.instance.collection('diary_entries');
-
-      // 문서가 존재하는지 확인
-      DocumentSnapshot docSnapshot = await diaries.doc(formattedDate).get();
-      if (!docSnapshot.exists) {
+      final userId = FirebaseAuth.instance.currentUser?.uid;
+      if (userId == null) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('일기를 찾을 수 없습니다.')),
+          SnackBar(content: Text('로그인이 필요합니다.')),
         );
         return;
       }
 
-      // 문서 삭제
-      await diaries.doc(formattedDate).delete();
+      String formattedDate = DateFormat('yyyy-MM-dd').format(date);
+      String firestoreDate = '$formattedDate 00:00:00.000Z';
 
-      // 삭제 성공 메시지 표시
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('일기가 성공적으로 삭제되었습니다.')),
-      );
+      // Firestore 컬렉션 참조
+      DocumentSnapshot docSnapshot = await FirebaseFirestore.instance
+          .collection('diary_test') // diary_entries -> diary_test
+          .doc(firestoreDate)
+          .get();
+
+      if (docSnapshot.exists && docSnapshot['userId'] == userId) {
+        // 문서 삭제
+        await FirebaseFirestore.instance
+            .collection('diary_test')
+            .doc(firestoreDate)
+            .delete();
+
+        // 삭제 성공 메시지 표시
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('일기가 성공적으로 삭제되었습니다.')),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('일기를 찾을 수 없습니다.')),
+        );
+      }
     } catch (e) {
-      // 삭제 실패 시 에러 처리
+      print("Error deleting diary: $e");
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('일기 삭제에 실패했습니다.')),
       );
-      print("Error deleting diary: $e");
     }
   }
 }

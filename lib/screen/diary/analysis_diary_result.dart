@@ -300,6 +300,9 @@ class AnalysisResultScreen extends StatelessWidget {
     final diaryModel = Provider.of<DiaryEntryModel>(context, listen: false);
     final selectedDate = diaryModel.selectedDate;
 
+    // Firebase Auth를 사용하여 현재 사용자 ID 가져오기
+    final userId = FirebaseAuth.instance.currentUser?.uid;
+
     // 단어 선택 다이얼로그를 먼저 호출하여 선택된 단어를 가져옴
     List<Map<String, dynamic>> selectedWordsWithMeanings = [];
     if (vocabulary.isNotEmpty) {
@@ -343,13 +346,14 @@ class AnalysisResultScreen extends StatelessWidget {
                 try {
                   // Firestore에 데이터 저장
                   await FirebaseFirestore.instance
-                      .collection('diary_entries')
+                      .collection('diary_test') // diary_entries -> diary_test
                       .doc(selectedDate.toString())
                       .set({
+                    'userId': userId, // 사용자 ID 저장
                     'date': selectedDate.toIso8601String(),
                     'analyzedSentences': correctedText,
                     'koreanSentences': diaryModel.entry,
-                    'vocabulary': selectedWordsWithMeanings, // 선택된 단어 저장
+                    'vocabulary': selectedWordsWithMeanings,
                   });
 
                   // 상태 초기화

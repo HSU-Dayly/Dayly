@@ -1,5 +1,6 @@
 import 'package:dayly/screen/calendar/diary_modify.dart';
 import 'package:dayly/screen/diary/DiarySwipeScreen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -276,18 +277,41 @@ class _CalendarScreenState extends State<CalendarScreen> {
   }
 
   Future<void> _fetchDiaryEvents() async {
+    final userId = FirebaseAuth.instance.currentUser?.uid;
+
+    if (userId == null) {
+      print('로그인이 필요합니다.');
+      return;
+    }
+
     try {
-      final querySnapshot =
-          await FirebaseFirestore.instance.collection('diary_entries').get();
+      final querySnapshot = await FirebaseFirestore.instance
+          .collection('diary_test') // diary_entries -> diary_test
+          .where('userId', isEqualTo: userId) // 사용자 ID 필터 추가
+          .get();
+
       final Map<DateTime, List<String>> events = {};
 
       for (var doc in querySnapshot.docs) {
-        final date = DateTime.parse(doc.id);
-        final analyzedSentences = doc['analyzedSentences'] as String?;
-        if (analyzedSentences != null && analyzedSentences.isNotEmpty) {
-          events[DateTime(date.year, date.month, date.day)] = [
-            analyzedSentences
-          ];
+        final dateString = doc['date']; // Firestore 필드 사용
+        if (dateString != null) {
+          final date = DateTime.parse(dateString); // 날짜 변환
+          final analyzedSentences = doc['analyzedSentences'];
+          String? analyzedSentencesString;
+
+          if (analyzedSentences is String) {
+            analyzedSentencesString = analyzedSentences;
+          } else if (analyzedSentences is List) {
+            analyzedSentencesString =
+                analyzedSentences.join(' '); // 리스트를 문자열로 변환
+          }
+
+          if (analyzedSentencesString != null &&
+              analyzedSentencesString.isNotEmpty) {
+            events[DateTime(date.year, date.month, date.day)] = [
+              analyzedSentencesString
+            ];
+          }
         }
       }
 
@@ -304,18 +328,38 @@ class _CalendarScreenState extends State<CalendarScreen> {
         DateTime(selectedDate.year, selectedDate.month, selectedDate.day);
     final endOfDay = startOfDay.add(Duration(days: 1));
 
+    final userId = FirebaseAuth.instance.currentUser?.uid;
+
+    if (userId == null) {
+      setState(() {
+        _diaryContent = '로그인이 필요합니다.';
+      });
+      return;
+    }
+
     try {
       final querySnapshot = await FirebaseFirestore.instance
-          .collection('diary_entries')
+          .collection('diary_test')
+          .where('userId', isEqualTo: userId)
           .where('date', isGreaterThanOrEqualTo: startOfDay.toIso8601String())
           .where('date', isLessThan: endOfDay.toIso8601String())
           .get();
 
       if (querySnapshot.docs.isNotEmpty) {
         final doc = querySnapshot.docs.first;
-        final analyzedSentences = doc['analyzedSentences'] as String?;
+        final analyzedSentences = doc['analyzedSentences'];
+
+        String? analyzedSentencesString;
+        if (analyzedSentences is String) {
+          analyzedSentencesString = analyzedSentences; // String 처리
+        } else if (analyzedSentences is List) {
+          analyzedSentencesString = analyzedSentences.join(' '); // List 처리
+        } else {
+          analyzedSentencesString = null; // 예상치 못한 데이터 형식
+        }
+
         setState(() {
-          _diaryContent = analyzedSentences ?? '내용 없음';
+          _diaryContent = analyzedSentencesString ?? '내용 없음';
         });
       } else {
         setState(() {
@@ -325,7 +369,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
     } catch (e) {
       print('일기 내용 가져오기 실패: $e');
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('일기 내용을 가져오는 중 오류가 발생했습니다.')),
+        const SnackBar(content: Text('일기 내용을 가져오는 중 오류가 발생했습니다.')),
       );
     }
   }
