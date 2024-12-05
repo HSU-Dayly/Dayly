@@ -37,6 +37,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Dayly',
+      debugShowCheckedModeBanner: false, // 디버그 띠 비활성화
       theme: ThemeData(
         fontFamily: 'HakgyoansimBadasseugiOTFL',
         scaffoldBackgroundColor: Color(0xFFEEEEEE),
