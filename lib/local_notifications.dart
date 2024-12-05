@@ -67,6 +67,7 @@ class LocalNotifications {
         uiLocalNotificationDateInterpretation:
         UILocalNotificationDateInterpretation.absoluteTime,
         androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+        matchDateTimeComponents: DateTimeComponents.time,
       );
       print("알림 스케줄링 성공");
     } catch (e) {
