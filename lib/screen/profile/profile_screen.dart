@@ -235,24 +235,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
           title: Text(
             'Dayly',
             style: TextStyle(
-              fontSize: 36.0,
-              fontWeight: FontWeight.bold,
-              color: Color(0XFF776767),
+              fontSize: 35.0,
+              color: Color.fromRGBO(88, 71, 51, 0.992),
             ),
           ),
           centerTitle: true,
           backgroundColor: const Color(0xFFEEEEEE),
           elevation: 0,
           actions: [
-            Padding(
-              padding: const EdgeInsets.only(right: 20.0),
-              child: IconButton(
-                onPressed: _confirmLogout, // _logout에서 _confirmLogout으로 변경
-                icon: Icon(
-                  Icons.logout,
-                  size: 28,
-                  color: Color(0xFF776767),
-                ),
+            IconButton(
+              onPressed: _confirmLogout, // _logout에서 _confirmLogout으로 변경
+              icon: Icon(
+                Icons.logout,
+                size: 28,
               ),
             ),
           ],
@@ -268,7 +263,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 children: [
                   Text(
                     USER_NAME,
-                    style: TextStyle(fontSize: 35, fontWeight: FontWeight.bold),
+                    style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
                   ),
                   SizedBox(
                     width: 10,
@@ -276,7 +271,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   Text(
                     '님',
                     style: TextStyle(
-                      fontSize: 24,
+                      fontSize: 22,
                     ),
                   )
                 ],
@@ -284,24 +279,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
               SizedBox(height: 8),
               Text('✨ $totalDays일째 함께 하고 있어요',
                   style: TextStyle(
-                    fontSize: 20,
+                    fontSize: 18,
                   )),
               Text('📝 지금까지 $totalDiary개의 일기를 썼어요',
                   style: TextStyle(
-                    fontSize: 20,
+                    fontSize: 18,
                   )),
               Text('🔥 연속 작성 기록 $diaryInARow일',
                   style: TextStyle(
-                    fontSize: 20,
+                    fontSize: 18,
                   )),
-              SizedBox(height: 24),
+              SizedBox(height: 20),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
                     'Dayly 알림',
                     style: TextStyle(
-                      fontSize: 26,
+                      fontSize: 25,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -311,7 +306,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     },
                     child: Text(
                       '알람 설정 >',
-                      style: TextStyle(color: Colors.grey, fontSize: 16),
+                      style: TextStyle(color: Colors.grey, fontSize: 15),
                     ),
                   ),
                 ],
@@ -327,18 +322,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 child: Text(
                   '매일 $alarmTime',
                   style: TextStyle(
-                    fontSize: 20,
+                    fontSize: 17,
                   ),
                 ),
               ),
-              SizedBox(height: 24),
+              SizedBox(height: 20),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
                     '이번 달 목표',
                     style: TextStyle(
-                      fontSize: 26,
+                      fontSize: 25,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -348,7 +343,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     },
                     child: Text(
                       '목표 설정 >',
-                      style: TextStyle(color: Colors.grey, fontSize: 16),
+                      style: TextStyle(color: Colors.grey, fontSize: 15),
                     ),
                   ),
                 ],
@@ -388,14 +383,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 '목표 달성',
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
-                                  fontSize: 20,
+                                  fontSize: 18,
                                 ),
                               ),
                               Text(
                                 '${(progressValue * 100).toInt()}%',
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
-                                    fontSize: 40,
+                                    fontSize: 35,
                                     fontWeight: FontWeight.bold,
                                     color: Color(0xFFEFD454)),
                               ),
@@ -403,7 +398,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           ),
                         ],
                       ),
-                      SizedBox(height: 50),
+                      SizedBox(height: 40),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
@@ -411,11 +406,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             children: [
                               Text('목표 일기',
                                   style: TextStyle(
-                                    fontSize: 20,
+                                    fontSize: 18,
                                   )),
                               Text('$goalDiary',
                                   style: TextStyle(
-                                      fontSize: 30,
+                                      fontSize: 25,
                                       fontWeight: FontWeight.bold)),
                             ],
                           ),
@@ -428,11 +423,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             children: [
                               Text('작성한 일기',
                                   style: TextStyle(
-                                    fontSize: 20,
+                                    fontSize: 18,
                                   )),
                               Text('$monthlyDiary', // monthDiary
                                   style: TextStyle(
-                                      fontSize: 30,
+                                      fontSize: 25,
                                       fontWeight: FontWeight.bold,
                                       color: Color(0xFFEFD454))),
                             ],
@@ -446,11 +441,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             children: [
                               Text('작성할 일기',
                                   style: TextStyle(
-                                    fontSize: 20,
+                                    fontSize: 18,
                                   )),
                               Text('${goalDiary - monthlyDiary}',
                                   style: TextStyle(
-                                      fontSize: 30,
+                                      fontSize: 25,
                                       fontWeight: FontWeight.bold,
                                       color: Colors.red)),
                             ],

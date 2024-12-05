@@ -170,9 +170,8 @@ class _DailyWordsScreenState extends State<DailyWordsScreen> {
           title: Text(
             'Dayly',
             style: TextStyle(
-              fontSize: 36.0,
-              fontWeight: FontWeight.bold,
-              color: Color(0XFF776767),
+              fontSize: 35.0,
+              color: Color.fromRGBO(88, 71, 51, 0.992),
             ),
           ),
           centerTitle: true,
@@ -190,7 +189,7 @@ class _DailyWordsScreenState extends State<DailyWordsScreen> {
                 Text(
                   'Dayly가 제안하는',
                   style: TextStyle(
-                    fontSize: 25,
+                    fontSize: 20,
                   ),
                 ),
               ],
@@ -200,7 +199,7 @@ class _DailyWordsScreenState extends State<DailyWordsScreen> {
                 Text(
                   '오늘의 영어 표현',
                   style: TextStyle(
-                    fontSize: 30,
+                    fontSize: 25,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -253,7 +252,7 @@ class _DailyWordsScreenState extends State<DailyWordsScreen> {
                           title: Text(
                             expression,
                             style: TextStyle(
-                              fontSize: 24.0,
+                              fontSize: 20.0,
                               fontWeight: FontWeight.bold,
                               backgroundColor: Color(0xFFFFEA00).withOpacity(0.34),
                             ),
@@ -265,7 +264,7 @@ class _DailyWordsScreenState extends State<DailyWordsScreen> {
                               Text(
                                 '$meaning',
                                 style: TextStyle(
-                                  fontSize: 20.0,
+                                  fontSize: 16.0,
                                   color: Colors.grey[700],
                                 ),
                               ),
@@ -273,7 +272,7 @@ class _DailyWordsScreenState extends State<DailyWordsScreen> {
                               Text(
                                 '$example',
                                 style: TextStyle(
-                                  fontSize: 18.0,
+                                  fontSize: 14.0,
                                   color: Colors.grey[700],
                                 ),
                               ),

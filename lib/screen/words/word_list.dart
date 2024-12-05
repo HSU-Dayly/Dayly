@@ -28,7 +28,7 @@ class _VocabularyScreenState extends State<VocabularyScreen> {
         elevation: 0,
       ),
       body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -36,7 +36,7 @@ class _VocabularyScreenState extends State<VocabularyScreen> {
             const Text(
               '나의 단어장',
               style: TextStyle(
-                fontSize: 22,
+                fontSize: 25,
                 fontWeight: FontWeight.bold,
                 color: Color.fromRGBO(88, 71, 51, 0.8),
               ),
@@ -102,7 +102,7 @@ class _VocabularyScreenState extends State<VocabularyScreen> {
                                   Text(
                                     word,
                                     style: const TextStyle(
-                                      fontSize: 18,
+                                      fontSize: 20,
                                       fontWeight: FontWeight.bold,
                                       color: Colors.black,
                                     ),
@@ -115,9 +115,9 @@ class _VocabularyScreenState extends State<VocabularyScreen> {
                                           entry.key + 1; // 번호 추가
                                       return Text(
                                         '$meaningIndex. $meaning', // 번호와 뜻
-                                        style: const TextStyle(
+                                        style: TextStyle(
                                           fontSize: 16,
-                                          color: Colors.black54,
+                                          color: Colors.grey[700],
                                         ),
                                       );
                                     },
