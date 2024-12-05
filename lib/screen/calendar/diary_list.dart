@@ -16,8 +16,8 @@ class DiaryListScreen extends StatelessWidget {
           title: Text(
             'Dayly',
             style: TextStyle(
-              fontSize: 36.0,
-              color: Color.fromRGBO(88, 71, 51, 0.992),
+                fontSize: 35.0,
+                fontWeight: FontWeight.bold, color: Color.fromRGBO(88, 71, 51, 0.992)
             ),
           ),
           centerTitle: true,
