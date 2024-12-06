@@ -102,7 +102,8 @@ Dayly는 그냥 영어 학습 도구가 아니라, 일상적인 자기 성찰을
 
 ## 🚀 시연 영상
 - 밑의 사진을 클릭하면 youtube 주소로 이동합니다.
-[![My YouTube Video Thumbnail](https://github.com/HSU-REPLAY/Ecosmetic-Bin/assets/121416032/ddec290b-4381-4ff5-ae10-004aca85c43c)](https://www.youtube.com/watch?v=CitKeV7mHRE)
+![KakaoTalk_Photo_2024-12-06-18-49-10](https://github.com/user-attachments/assets/707e93d4-73a2-4b1f-a740-42f83698b489)
+([https://www.youtube.com/watch?v=CitKeV7mHRE](https://www.youtube.com/watch?v=4QupwThQsxA))
 
 
 <br>
