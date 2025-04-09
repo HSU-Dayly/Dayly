@@ -16,10 +16,10 @@ Dayly는 그냥 영어 학습 도구가 아니라, 일상적인 자기 성찰을
 <br>
 
 ## 🧑‍🤝‍🧑 멤버 구성
- - 팀원1 : [하여린](https://github.com/niroey) - 소셜로그인 페이지 및 파이어베이스 구축
+ - 팀원1 : [김은비](https://github.com/ssilverrain) - 일기작성 페이지 구현
  - 팀원2 : [전아린](https://github.com/flsrinn) - 마이 페이지, 오늘의 단어 페이지 구현
- - 팀원3 : [김은비](https://github.com/ssilverrain) - 일기작성 페이지 구현
- - 팀원4 : [정세연](https://github.com/sseyeonn) - 캘린더 페이지, 단어장 페이지 구현
+ - 팀원3 : [정세연](https://github.com/sseyeonn) - 캘린더 페이지, 단어장 페이지 구현
+ - 팀원4 : [하여린](https://github.com/niroey) - 소셜로그인 페이지 및 파이어베이스 구축
 <br>
 
  ## ⚙️ 개발 환경
