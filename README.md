@@ -91,7 +91,7 @@ Dayly는 그냥 영어 학습 도구가 아니라, 일상적인 자기 성찰을
 </p>
 <br>
 
-- 마이페이지도 볼수있음요~
+- 마이페이지에서는 지금까지의 기록과 이번달의 목표, 그리고 일기 알림 설정을 할 수 있어요.
 
 <p align="center">
  <img src="https://github.com/user-attachments/assets/c4744fe1-26a8-4827-89ab-e87a1615eadb" width="200" style="margin-right: 20px;"/>
